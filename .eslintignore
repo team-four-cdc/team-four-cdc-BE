@@ -1,0 +1,13 @@
+node_modules/**
+*.env
+.nyc_output/**
+logs/**
+test-reports/**
+coverage/**
+.well-known/**
+keys/**
+app/views/**
+*.json
+*.md
+stackify.js
+migrations/**

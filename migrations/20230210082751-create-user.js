@@ -15,11 +15,11 @@ module.exports = {
       password: {
         type: Sequelize.STRING
       },
-      fullname: {
+      full_name: {
         type: Sequelize.STRING
       },
       role: {
-        type: Sequelize.ARRAY
+        type: Sequelize.ARRAY(Sequelize.STRING)
       },
       author: {
         type: Sequelize.STRING

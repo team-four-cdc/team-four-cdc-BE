@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING
     },
     role: {
-      type: DataTypes.ARRAY
+      type: DataTypes.ARRAY(DataTypes.STRING)
     },
     author: {
       type: DataTypes.STRING

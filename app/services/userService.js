@@ -2,14 +2,14 @@ const appRoot = require('app-root-path');
 
 const {
   errorHandler: {
-    RequestFailed
+    BadRequest
   }
 } = require(`${appRoot}/app/utils`);
 
 function userService() {
   function createUserHandler(userData) {
     if (userData.fullName === 'string') {
-      throw new RequestFailed('try error');
+      throw new BadRequest('try error');
     }
   }
 

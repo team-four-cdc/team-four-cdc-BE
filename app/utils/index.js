@@ -1,9 +1,11 @@
 const appRoot = require('app-root-path');
 
-const httpRespStatusUtil = require(`${appRoot}/app/utils/httpResStatusUtil`)();
+const httpResStatusUtil = require(`${appRoot}/app/utils/httpResStatusUtil`)();
 const errorHandler = require(`${appRoot}/app/utils/errorHandler`)();
+const errorResponseUtil = require(`${appRoot}/app/utils/errorResponseUtil`);
 
 module.exports = {
-  httpRespStatusUtil,
-  errorHandler
+  httpResStatusUtil,
+  errorHandler,
+  errorResponseUtil
 };

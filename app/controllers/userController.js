@@ -10,7 +10,7 @@ function userController() {
       const result = await userService.createUserHandler(req.body);
       return httpRespStatusUtil.sendOk(res, result);
     } catch (error) {
-      console.log(error.message, '=======>>>');
+      console.log(error.name, '=======>>>');
     }
   }
 

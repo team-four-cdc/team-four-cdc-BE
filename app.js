@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const app = express();
 
 const port = process.env.PORT;
-const { networkRouter } = require(`${appRoot}/app/routes`);
+const { networkRouter, userRouter } = require(`${appRoot}/app/routes`);
 
 /* Returns middleware that only parses json and only looks at requests where the Content-Type header matches the type option.
 This parser accepts any Unicode encoding of the body and supports automatic inflation of gzip and deflate encodings.
@@ -23,6 +23,7 @@ NOTE: If one has been provided in more than one location, this will abort the re
 app.use(bodyParser.urlencoded({ extended: false }));
 
 networkRouter(app);
+userRouter(app);
 
 app.listen(port, async () => {
   console.log(`listening on port ${port}`);

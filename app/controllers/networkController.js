@@ -10,7 +10,7 @@ function networkController() {
       const result = await networkService.getPingHandler();
       return httpRespStatusUtil.sendOk(res, result);
     } catch (error) {
-      return httpRespStatusUtil.sendOk(res, { message: 'failed' });
+      return httpRespStatusUtil.sendServerError(res, { message: 'server error' });
     }
   }
 

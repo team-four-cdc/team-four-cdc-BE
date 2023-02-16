@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
     article_id: {
       allowNull: false,
       type: DataTypes.INTEGER,
-      references: { model: 'Articles', key: 'id' },
+      references: { model: 'articles', key: 'id' },
     },
     status: {
       type: DataTypes.STRING
@@ -36,11 +36,23 @@ module.exports = (sequelize, DataTypes) => {
     user_id: {
       allowNull: false,
       type: DataTypes.INTEGER,
-      references: { model: 'Users', key: 'id' },
+      references: { model: 'users', key: 'id' },
     },
   }, {
     sequelize,
     modelName: 'Transaction',
+
+    // don't use camelcase for automatically added attributes but underscore style
+    // so updatedAt will be updated_at
+    underscored: true,
+
+    // disable the modification of tablenames; By default, sequelize will automatically
+    // transform all passed model names (first parameter of define) into plural.
+    // if you don't want that, set the following
+    freezeTableName: true,
+
+    // define the table's name
+    tableName: 'transactions'
   });
   return Transaction;
 };

@@ -13,7 +13,7 @@ function userRouter(app) {
     next();
   }, route);
 
-  route.post('/registration/reader', userController.createUser);
+  route.post('/registration/reader', userController.createUserReader);
 }
 
 module.exports = userRouter;

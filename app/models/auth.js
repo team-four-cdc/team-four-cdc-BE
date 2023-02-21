@@ -12,6 +12,17 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.belongsTo(models.User, { foreignKey: 'user_id' });
     }
+
+    static async findOneByGenerateCode(value) {
+      return this.findOne({ where: { generate_code: value } }).then(async (authData) => {
+        if (authData) {
+        // info
+          return authData;
+        }
+
+        return null;
+      }).catch(() => null);
+    }
   }
   Auth.init({
     user_id: {

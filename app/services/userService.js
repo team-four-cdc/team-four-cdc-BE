@@ -6,7 +6,7 @@ const {
     BadRequest
   }
 } = require(`${appRoot}/app/utils`);
-const { User: UserModel } = require(`${appRoot}/app/models`);
+const { User: UserModel, Auth: AuthModel } = require(`${appRoot}/app/models`);
 const { jwtUtil } = require(`${appRoot}/app/utils`);
 const { userConstant } = require(`${appRoot}/app/constants`);
 
@@ -21,6 +21,12 @@ function userService() {
         }
       });
     });
+  }
+
+  async function verificationUserLinkHandler(code) {
+    const authUserData = await AuthModel.findOneByGenerateCode(code);
+
+    return authUserData;
   }
 
   // should add db transaction
@@ -56,7 +62,8 @@ function userService() {
   }
 
   return {
-    createUserReaderHandler
+    createUserReaderHandler,
+    verificationUserLinkHandler
   };
 }
 

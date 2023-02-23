@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
     publish_date: {
       type: DataTypes.DATE
     },
-    author_id: {
+    user_id: {
       allowNull: false,
       type: DataTypes.INTEGER,
       references: { model: 'users', key: 'id' },

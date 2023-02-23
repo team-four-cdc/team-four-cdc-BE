@@ -19,9 +19,6 @@ module.exports = {
         type: Sequelize.STRING
       },
       role: {
-        type: Sequelize.ARRAY(Sequelize.STRING)
-      },
-      author: {
         type: Sequelize.STRING
       },
       token: {

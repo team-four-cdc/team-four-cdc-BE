@@ -14,6 +14,7 @@ function userRouter(app) {
   }, route);
 
   route.post('/registration/reader', userController.createUserReader);
+  route.post('/registration/verification', userController.verificationUserLink);
 }
 
 module.exports = userRouter;

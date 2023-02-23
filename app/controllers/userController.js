@@ -14,8 +14,19 @@ function userController() {
     }
   }
 
+  async function verificationUserLink(req, res) {
+    try {
+      const { generateCode } = req.body;
+      const result = await userService.verificationUserLinkHandler(generateCode);
+      return httpResStatusUtil.sendOk(res, result);
+    } catch (error) {
+      return errorResponseUtil(res, error);
+    }
+  }
+
   return {
-    createUserReader
+    createUserReader,
+    verificationUserLink
   };
 }
 

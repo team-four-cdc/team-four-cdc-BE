@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const app = express();
 
 const port = process.env.PORT;
+const logger = require(`${appRoot}/config/loggerConfig`);
 const { networkRouter, userRouter } = require(`${appRoot}/app/routes`);
 
 /* Returns middleware that only parses json and only looks at requests where the Content-Type header matches the type option.
@@ -26,5 +27,6 @@ networkRouter(app);
 userRouter(app);
 
 app.listen(port, async () => {
-  console.log(`listening on port ${port}`);
+  // console.log(`listening on port ${port}`);
+  logger.info(`listening on port ${port}`);
 });

@@ -7,7 +7,7 @@ const {
   }
 } = require(`${appRoot}/app/utils`);
 const { User: UserModel, Auth: AuthModel } = require(`${appRoot}/app/models`);
-const { jwtUtil } = require(`${appRoot}/app/utils`);
+const { jwtUtil, dateUtil } = require(`${appRoot}/app/utils`);
 const { userConstant } = require(`${appRoot}/app/constants`);
 
 function userService() {
@@ -24,9 +24,25 @@ function userService() {
   }
 
   async function verificationUserLinkHandler(code) {
+    console.log(code, '=====>>>');
     const authUserData = await AuthModel.findOneByGenerateCode(code);
 
-    return authUserData;
+    if (!authUserData) {
+      throw new BadRequest('Please do a registration first');
+    }
+
+    const existingUserData = await UserModel.findOneByQuery({ id: authUserData.user_id });
+
+    if (existingUserData.is_verified) {
+      throw new BadRequest('Data is already verified');
+    }
+
+    const convertedExpiryDate = dateUtil.convertDateToMillisecond(authUserData.expiry_date);
+    const convertedNewDate = dateUtil.convertDateToMillisecond(new Date());
+
+    console.log(authUserData.expiry_date.getDay(), '======', convertedNewDate);
+
+    return existingUserData;
   }
 
   // should add db transaction

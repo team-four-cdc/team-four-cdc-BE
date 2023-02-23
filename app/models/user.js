@@ -1,7 +1,13 @@
 const {
   Model
 } = require('sequelize');
+const appRoot = require('app-root-path');
+
+const logger = require(`${appRoot}/config/loggerConfig`);
+const { loggerConstant } = require(`${appRoot}/app/constants`);
+
 module.exports = (sequelize, DataTypes) => {
+  const MODEL_NAME = 'User';
   class User extends Model {
     /**
      * Helper method for defining associations.
@@ -16,18 +22,38 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(models.Transaction, { foreignKey: 'user_id' });
     }
 
+    static async findOneByQuery(query) {
+      logger.debug(`${loggerConstant.FIND_QUERY} from DB ${MODEL_NAME} query: ${JSON.stringify(query)}`);
+      return this.findOne({ where: query }).then(async (userData) => {
+        if (userData) {
+          logger.debug(`Success when ${loggerConstant.FIND_QUERY} from DB ${MODEL_NAME} [query: ${JSON.stringify(query)}]`);
+
+          return userData;
+        }
+
+        logger.debug(`${loggerConstant.FIND_QUERY} empty data from DB ${MODEL_NAME} [query: ${JSON.stringify(query)}]`);
+        return null;
+      }).catch((error) => {
+        logger.error(`Error ${loggerConstant.FIND_QUERY} from DB ${MODEL_NAME} error: ${JSON.stringify(error)}`);
+        return null;
+      });
+    }
+
     static async insertNew(data) {
-      // const result = await this.create(data, { returning: true });
+      logger.debug(`${loggerConstant.CREATE_QUERY} data to DB ${MODEL_NAME} [data: ${JSON.stringify(data)}]`);
 
       return this.create(data, { returning: true }).then(async (user) => {
         if (user) {
-          // info
+          logger.debug(`Success ${loggerConstant.CREATE_QUERY} data to DB ${MODEL_NAME} [data: ${JSON.stringify(data)}]`);
+
           return user;
         }
 
         return null;
-        // should be provide logger and pass error within catch callback
-      }).catch(() => null);
+      }).catch((error) => {
+        logger.error(`Error ${loggerConstant.CREATE_QUERY} data to DB ${MODEL_NAME} [error: ${JSON.stringify(error)}]`);
+        return null;
+      });
     }
 
     static async findOneByEmail(value) {
@@ -51,9 +77,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING
     },
     role: {
-      type: DataTypes.ARRAY(DataTypes.STRING)
-    },
-    author: {
       type: DataTypes.STRING
     },
     token: {

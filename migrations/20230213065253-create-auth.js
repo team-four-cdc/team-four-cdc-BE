@@ -23,7 +23,7 @@ module.exports = {
       purpose: {
         type: Sequelize.STRING
       },
-      create_at: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },

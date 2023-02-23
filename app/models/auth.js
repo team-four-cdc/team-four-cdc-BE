@@ -1,7 +1,12 @@
 const {
   Model
 } = require('sequelize');
+const appRoot = require('app-root-path');
+
+const logger = require(`${appRoot}/config/loggerConfig`);
+const { loggerConstant } = require(`${appRoot}/app/constants`);
 module.exports = (sequelize, DataTypes) => {
+  const MODEL_NAME = 'Auth';
   class Auth extends Model {
     /**
      * Helper method for defining associations.
@@ -14,14 +19,20 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     static async findOneByGenerateCode(value) {
+      logger.debug(`${loggerConstant.FIND_QUERY} from DB ${MODEL_NAME} [value: ${JSON.stringify(value)}]`);
+
       return this.findOne({ where: { generate_code: value } }).then(async (authData) => {
         if (authData) {
-        // info
+          logger.debug(`Success when ${loggerConstant.FIND_QUERY} from DB ${MODEL_NAME} [value: ${JSON.stringify(value)}]`);
+
           return authData;
         }
 
         return null;
-      }).catch(() => null);
+      }).catch((error) => {
+        logger.error(`Error ${loggerConstant.FIND_QUERY} from DB ${MODEL_NAME} [error: ${JSON.stringify(error)}]`);
+        return null;
+      });
     }
   }
   Auth.init({

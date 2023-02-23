@@ -39,6 +39,24 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
+    static async updateByQuery(value, query, returnValue) {
+      logger.debug(`${loggerConstant.UPDATE_QUERY} to DB ${MODEL_NAME} query: ${JSON.stringify(query)}`);
+      if (returnValue) {
+        query.returning = true;
+      }
+      return this.update(value, query).then(async (userData) => {
+        if (userData) {
+          logger.debug(`Success when ${loggerConstant.UPDATE_QUERY} to DB ${MODEL_NAME} [query: ${JSON.stringify(query)}]`);
+
+          return userData;
+        }
+        return null;
+      }).catch((error) => {
+        logger.error(`Error ${loggerConstant.UPDATE_QUERY} from DB ${MODEL_NAME} error: ${JSON.stringify(error)}`);
+        return null;
+      });
+    }
+
     static async insertNew(data) {
       logger.debug(`${loggerConstant.CREATE_QUERY} data to DB ${MODEL_NAME} [data: ${JSON.stringify(data)}]`);
 

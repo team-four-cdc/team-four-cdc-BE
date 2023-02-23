@@ -24,7 +24,6 @@ function userService() {
   }
 
   async function verificationUserLinkHandler(code) {
-    console.log(code, '=====>>>');
     const authUserData = await AuthModel.findOneByGenerateCode(code);
 
     if (!authUserData) {
@@ -38,11 +37,32 @@ function userService() {
     }
 
     const convertedExpiryDate = dateUtil.convertDateToMillisecond(authUserData.expiry_date);
-    const convertedNewDate = dateUtil.convertDateToMillisecond(new Date());
+    const convertedTodayDate = dateUtil.convertDateToMillisecond(new Date());
 
-    console.log(authUserData.expiry_date.getDay(), '======', convertedNewDate);
+    if (convertedTodayDate > convertedExpiryDate) {
+      throw new BadRequest('Link has already expired');
+    }
 
-    return existingUserData;
+    const createdToken = await jwtUtil.sign({ email: existingUserData.email, user_id: existingUserData.id });
+
+    const updateIsVerifiedQuery = {
+      where: {
+        id: authUserData.user_id
+      }
+    };
+    const updateIsVerifiedValue = { is_verified: true, token: createdToken };
+
+    const updateIsVerifiedToken = await UserModel.updateByQuery(updateIsVerifiedValue, updateIsVerifiedQuery, true);
+
+    if (!updateIsVerifiedToken[1][0].dataValues.id) {
+      throw new BadRequest('Failed to verified link');
+    }
+
+    return {
+      userId: existingUserData.id,
+      email: existingUserData.email,
+      token: createdToken
+    };
   }
 
   // should add db transaction
@@ -60,7 +80,8 @@ function userService() {
       full_name: fullName,
       email,
       password: hashedPassword.toString('hex'),
-      role: [userConstant.ROLE.READER],
+      // role: [userConstant.ROLE.READER],
+      role: userConstant.ROLE.READER,
       author: null,
       token: createdToken,
       photo_url: null,

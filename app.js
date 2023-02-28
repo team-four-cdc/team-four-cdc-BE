@@ -2,10 +2,13 @@ require('dotenv').config();
 const express = require('express');
 const appRoot = require('app-root-path');
 const bodyParser = require('body-parser');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 const app = express();
 
 const port = process.env.PORT;
 const logger = require(`${appRoot}/config/loggerConfig`);
+const swaggerConfig = require(`${appRoot}/config/swaggerConfig`);
 const { networkRouter, userRouter } = require(`${appRoot}/app/routes`);
 
 /* Returns middleware that only parses json and only looks at requests where the Content-Type header matches the type option.
@@ -22,6 +25,13 @@ or any type (when extended is true).
 NOTE: If one has been provided in more than one location, this will abort the request immediately by sending code 400
 */
 app.use(bodyParser.urlencoded({ extended: false }));
+
+const specs = swaggerJsdoc(swaggerConfig);
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(specs)
+);
 
 networkRouter(app);
 userRouter(app);

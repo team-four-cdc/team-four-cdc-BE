@@ -1,7 +1,10 @@
-const appRoot = require('app-root-path');
+const express = require("express");
+const router = express.Router();
 
-const networkRouter = require(`${appRoot}/app/routes/networkRouter`);
+const networkRoute = require("./networkRouter");
+const userRoute = require("./userRouter");
 
-module.exports = {
-  networkRouter
-};
+router.use("/network", networkRoute);
+router.use("/", userRoute);
+
+module.exports = router;

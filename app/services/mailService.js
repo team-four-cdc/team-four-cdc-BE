@@ -18,7 +18,7 @@ class MailService {
       from: process.env.MAIL_USER,
       to: to,
       subject: "Account Verification",
-      text: "Verify using this link " + token,
+      text: `Verify using this link https://team-four-cdc.vercel.app/verifikasi/${token}`,
     });
 
     console.log("Message sent: %s", info.messageId);

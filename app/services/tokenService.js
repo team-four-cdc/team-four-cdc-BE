@@ -1,10 +1,10 @@
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
 
 class TokenService {
   constructor() {}
 
-  async signToken(payload) {
-    const token = jwt.sign(payload, process.env.SECRET);
+  async signToken(payload, options = undefined) {
+    const token = jwt.sign(payload, process.env.SECRET, options);
 
     return token;
   }

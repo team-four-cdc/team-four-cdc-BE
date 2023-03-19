@@ -1,10 +1,12 @@
-require("dotenv").config();
-const express = require("express");
-const bodyParser = require("body-parser");
-const cors = require("cors");
+require('dotenv').config();
+const express = require('express');
+const swaggerUi = require('swagger-ui-express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 const app = express();
-const apiRouter = require("./app/routes");
-const corsConfig = require("./config/corsConfig");
+const apiRouter = require('./app/routes');
+const corsConfig = require('./config/corsConfig');
+const docs = require('./docs');
 const port = process.env.PORT;
 
 /* Returns middleware that only parses json and only looks at requests where the Content-Type header matches the type option.
@@ -25,16 +27,16 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors(corsConfig));
 
 app.use((_req, res, next) => {
-  res.set("Cache-Control", "no-store,no-cache,must-revalidate,max-age=0");
-  res.set("Pragma", "no-cache");
+  res.set('Cache-Control', 'no-store,no-cache,must-revalidate,max-age=0');
+  res.set('Pragma', 'no-cache');
   next();
 });
 
-app.use("/api", apiRouter);
+app.use('/api', apiRouter);
 
 // GLOBAL ERROR HANDLER
 app.use((error, _req, res, next) => {
-  error.status = error.status || "error";
+  error.status = error.status || 'error';
   error.statusCode = error.statusCode || 500;
 
   res.status(error.statusCode).json({
@@ -44,6 +46,7 @@ app.use((error, _req, res, next) => {
   next();
 });
 
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(docs));
 app.listen(port, async () => {
   console.log(`listening on port ${port}`);
 });

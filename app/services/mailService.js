@@ -9,7 +9,7 @@ class MailService {
     const { from, ...config } = smtpConfig;
     const transporter = nodemailer.createTransport(config);
     const info = await transporter.sendMail({
-      from,
+      from: `${from.name} <${from.email}>`,
       to,
       subject: 'Account Verification',
       text: `Verify using this link ${process.env.FE_HOST}/verifikasi/${token}`,

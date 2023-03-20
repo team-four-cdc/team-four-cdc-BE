@@ -1,14 +1,17 @@
 const UserService = require("../services/userService");
 const MailService = require("../services/mailService");
 const TokenService = require("../services/tokenService");
-const UserValidator = require("../validator/userValidator");
+const {
+  registerUserSchema,
+  verifyUserSchema,
+} = require("../validator/userValidator");
 const { httpRespStatusUtil } = require("../utils");
 const db = require("../models");
 
 const createUserController = async (req, res) => {
   const { email, password, full_name, role, author } = req.body;
 
-  const validationResult = UserValidator.validate({
+  const validationResult = registerUserSchema.validate({
     email,
     password,
     full_name,
@@ -19,7 +22,7 @@ const createUserController = async (req, res) => {
   const { value, error } = validationResult;
 
   if (error) {
-    return httpRespStatusUtil.sendOk(res, {
+    return httpRespStatusUtil.sendBadRequest(res, {
       status: "failed",
       message: "Invalid request",
       data: error,
@@ -51,17 +54,24 @@ const createUserController = async (req, res) => {
 const verifyUserController = async (req, res) => {
   const { token } = req.body;
 
-  if (!token) {
-    return httpRespStatusUtil.sendOk(res, {
+  const validationResult = verifyUserSchema.validate({
+    token,
+  });
+
+  const { value, error } = validationResult;
+
+  if (error) {
+    return httpRespStatusUtil.sendBadRequest(res, {
       status: "failed",
-      message: "Invalid request, token must exists",
+      message: "Invalid request",
+      data: error,
     });
   }
 
   const userService = new UserService({ userModel: db.User });
 
   try {
-    const user = await userService.findUserByToken({ token });
+    const user = await userService.findUserByToken({ token: value.token });
 
     if (user) {
       await userService.verifyUser(user);
@@ -70,7 +80,7 @@ const verifyUserController = async (req, res) => {
         msg: "User verified",
       });
     } else {
-      return httpRespStatusUtil.sendServerError(res, {
+      return httpRespStatusUtil.sendNotFound(res, {
         status: "failed",
         msg: "Can't find user",
       });

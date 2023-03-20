@@ -1,10 +1,10 @@
 function httpRespStatusUtil() {
   function _errorFormat(data) {
     const errorBaseFormat = {
-      message: data
+      message: data,
     };
 
-    if (typeof data !== 'string') {
+    if (typeof data !== "string") {
       return data;
     }
 
@@ -13,10 +13,10 @@ function httpRespStatusUtil() {
 
   function _successFormat(data) {
     const generalSuccessBaseFormat = {
-      message: data
+      message: data,
     };
 
-    if (typeof data !== 'string') {
+    if (typeof data !== "string") {
       return data;
     }
 
@@ -70,7 +70,7 @@ function httpRespStatusUtil() {
     sendNotFound,
     sendConflict,
     sendTooManyRequests,
-    sendServerError
+    sendServerError,
   };
 }
 

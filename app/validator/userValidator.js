@@ -1,6 +1,6 @@
 const Joi = require("joi");
 
-const schema = Joi.object({
+const registerUserSchema = Joi.object({
   email: Joi.string().email({ tlds: false }).required(),
   password: Joi.string()
     .min(8)
@@ -11,4 +11,8 @@ const schema = Joi.object({
   author: Joi.string().required(),
 });
 
-module.exports = schema;
+const verifyUserSchema = Joi.object({
+  token: Joi.string().required(),
+});
+
+module.exports = { registerUserSchema, verifyUserSchema };

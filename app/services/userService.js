@@ -30,6 +30,18 @@ class UserService {
     });
   }
 
+  async findUserByEmail({ email }) {
+    return this.userModel.findOne({
+      where: { email },
+    });
+  }
+
+  async findDuplicateUser({ email, role }) {
+    return this.userModel.findOne({
+      where: { email, role },
+    });
+  }
+
   async verifyUser(user) {
     await user.update({ is_verified: true });
     return await user.save();

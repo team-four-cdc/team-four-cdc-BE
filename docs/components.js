@@ -13,9 +13,49 @@ module.exports = {
       },
     ],
     schemas: {
+      UsersObject: {
+        type: 'object',
+        required: ['email', 'password', 'full_name', 'role', 'author'],
+        properties: {
+          email: {
+            type: 'string',
+            description: 'Email user',
+            example: 'team4@gmail.com',
+          },
+          password: {
+            type: 'string',
+            description: 'Password user',
+            example: 'Admin123',
+          },
+          full_name: {
+            type: 'string',
+            description: 'Full name user',
+            example: 'admin',
+          },
+          role: {
+            $ref: '#/components/schemas/role',
+          },
+          author: {
+            type: 'string',
+            description: 'Author users',
+            example: 'author',
+          },
+        },
+      },
+      TokenInput: {
+        type: 'object',
+        properties: {
+          token: {
+            type: 'string',
+            description: 'token',
+            example: 'random string',
+          },
+        },
+      },
       role: {
         type: 'string',
-        description: 'role of login [reader,creator]',
+        enum: ['reader', 'creator'],
+        description: 'role of users',
         example: 'reader',
       },
       LoginInput: {

@@ -10,6 +10,8 @@ module.exports = {
     'no-plusplus': 0,
     'func-names': 0,
     'no-param-reassign': ['error', { props: false }],
-    'dot-notation': ['error', { allowPattern: '^[a-z]+(_[a-z]+)+$' }]
-  }
+    'dot-notation': ['error', { allowPattern: '^[a-z]+(_[a-z]+)+$' }],
+    'linebreak-style': 0,
+    'operator-linebreaks': 'none',
+  },
 };

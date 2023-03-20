@@ -46,6 +46,16 @@ class UserService {
     await user.update({ is_verified: true });
     return await user.save();
   }
+
+  async getUser({ user_id }) {
+    return this.userModel.findByPk(user_id);
+  }
+
+  async findUserEmailByRole({ email, role }) {
+    return await this.userModel.findOne({
+      where: { email, role, is_verified: true },
+    });
+  }
 }
 
 module.exports = UserService;

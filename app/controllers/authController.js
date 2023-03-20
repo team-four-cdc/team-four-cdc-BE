@@ -43,7 +43,7 @@ const verifyAuthHandler = async (req, res, next) => {
       if (password && isValid) {
         const token = await tokenService.signToken(
           { email: user.email },
-          { expiresIn: '1h' }
+          { expiresIn: '1d' }
         );
         return httpRespStatusUtil.sendOk(res, {
           status: 'success',

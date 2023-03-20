@@ -1,5 +1,5 @@
-const { Model } = require("sequelize");
-const { hash } = require("../utils/hashPassword");
+const { Model } = require('sequelize');
+const { hash } = require('../utils/hashPassword');
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
@@ -10,10 +10,10 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.hasOne(models.Auth, { foreignKey: "user_id" });
-      this.hasMany(models.Article, { foreignKey: "author_id" });
-      this.hasMany(models.ArticleReader, { foreignKey: "user_id" });
-      this.hasMany(models.Transaction, { foreignKey: "user_id" });
+      this.hasOne(models.Auth, { foreignKey: 'user_id' });
+      this.hasMany(models.Article, { foreignKey: 'author_id' });
+      this.hasMany(models.ArticleReader, { foreignKey: 'user_id' });
+      this.hasMany(models.Transaction, { foreignKey: 'user_id' });
     }
   }
   User.init(
@@ -47,12 +47,17 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "User",
-      tableName: "Users",
+      modelName: 'User',
+      tableName: 'Users',
     }
   );
 
   User.beforeCreate(async (user) => {
+    const hashedPassword = await hash(user.password);
+    user.password = hashedPassword;
+  });
+
+  User.beforeUpdate(async (user) => {
     const hashedPassword = await hash(user.password);
     user.password = hashedPassword;
   });

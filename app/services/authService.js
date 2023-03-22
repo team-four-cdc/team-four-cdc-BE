@@ -1,8 +1,8 @@
-const moment = require('moment');
 const jwt = require('jsonwebtoken');
 const mailer = require('nodemailer');
 const TokenService = require('./tokenService');
 const emailHelper = require('../helpers/emailHelper');
+const db = require('../models');
 
 class AuthService {
   constructor({ userModel }) {
@@ -17,14 +17,15 @@ class AuthService {
         pass: process.env.MAIL_PASSWORD,
       },
     });
+    this.tokenService = new TokenService({ tokenModel: db.Token });
   }
 
   async sendEmail(params) {
-    const tokenService = new TokenService();
+    const tokenService = new TokenService({ tokenModel: db.Token });
     try {
       const generateToken = await tokenService.signToken(
         { email: params.email, role: params.role },
-        { expiresIn: '1h' }
+        { expiresIn: '1d' }
       );
       const url = `${process.env.BASE_APP_URL}/auth/reset-password/?token=${generateToken}`;
       const mailOptions = {
@@ -37,6 +38,15 @@ class AuthService {
           link: url,
         }),
       };
+      const decodeToken = jwt.decode(generateToken);
+      /*
+      Store expire_in as unix format date 
+      */
+      await tokenService.storeToken({
+        user_id: params.id,
+        generate_token: generateToken,
+        expire_in: decodeToken['exp'],
+      });
       await this.nodemailerTransport.sendMail(mailOptions);
       return true;
     } catch (e) {
@@ -46,23 +56,33 @@ class AuthService {
 
   async resetPassword(params) {
     try {
-      const now = moment().unix();
       const extractedToken = jwt.decode(params.resetPasswordToken);
 
-      if (now > extractedToken['exp']) {
-        throw new Error('Reset Password Token is Expired!');
+      const isValidToken = await this.tokenService.isValidToken({
+        generate_token: params.resetPasswordToken,
+      });
+
+      if (isValidToken) {
+        await this.userModel.update(
+          { password: params.newPassword },
+          {
+            where: {
+              email: extractedToken['email'],
+              role: extractedToken['role'],
+            },
+            individualHooks: true,
+          }
+        );
+        await this.tokenService.deleteToken({
+          generate_token: params.resetPasswordToken,
+        });
+        return { success: true, error: null };
       }
-      this.userModel.update(
-        { password: params.newPassword },
-        {
-          where: {
-            email: extractedToken['email'],
-            role: extractedToken['role'],
-          },
-          individualHooks: true,
-        }
-      );
-      return true;
+
+      return {
+        success: false,
+        error: { message: 'Expired token for resetting password!' },
+      };
     } catch (e) {
       throw e;
     }

@@ -1,12 +1,12 @@
-const UserService = require("../services/userService");
-const MailService = require("../services/mailService");
-const TokenService = require("../services/tokenService");
+const UserService = require('../services/userService');
+const MailService = require('../services/mailService');
+const TokenService = require('../services/tokenService');
 const {
   registerUserSchema,
   verifyUserSchema,
-} = require("../validator/userValidator");
-const { httpRespStatusUtil } = require("../utils");
-const db = require("../models");
+} = require('../validator/userValidator');
+const { httpRespStatusUtil } = require('../utils');
+const db = require('../models');
 
 const createUserController = async (req, res) => {
   const { email, password, full_name, role, author } = req.body;
@@ -23,15 +23,15 @@ const createUserController = async (req, res) => {
 
   if (error) {
     return httpRespStatusUtil.sendBadRequest(res, {
-      status: "failed",
-      message: "Invalid request",
+      status: 'failed',
+      message: 'Invalid request',
       data: error,
     });
   }
 
   const userService = new UserService({ userModel: db.User });
   const mailService = new MailService();
-  const tokenService = new TokenService();
+  const tokenService = new TokenService({ tokenModel: db.Token });
 
   const user = await userService.findDuplicateUser({
     email: value.email,
@@ -40,8 +40,8 @@ const createUserController = async (req, res) => {
 
   if (user) {
     return httpRespStatusUtil.sendBadRequest(res, {
-      status: "failed",
-      message: "User already exists",
+      status: 'failed',
+      message: 'User already exists',
     });
   }
 
@@ -52,13 +52,13 @@ const createUserController = async (req, res) => {
     mailService.sendVerificationEmail({ to: value.email, token });
 
     return httpRespStatusUtil.sendOk(res, {
-      status: "success",
-      msg: `User ${value.email} created`,
+      status: 'success',
+      message: `User ${value.email} created`,
     });
   } catch (error) {
     return httpRespStatusUtil.sendServerError(res, {
-      status: "failed",
-      msg: "error occurred",
+      status: 'failed',
+      message: 'error occurred',
     });
   }
 };
@@ -74,8 +74,8 @@ const verifyUserController = async (req, res) => {
 
   if (error) {
     return httpRespStatusUtil.sendBadRequest(res, {
-      status: "failed",
-      message: "Invalid request",
+      status: 'failed',
+      message: 'Invalid request',
       data: error,
     });
   }
@@ -88,19 +88,19 @@ const verifyUserController = async (req, res) => {
     if (user) {
       await userService.verifyUser(user);
       return httpRespStatusUtil.sendOk(res, {
-        status: "success",
-        msg: "User verified",
+        status: 'success',
+        message: 'User verified',
       });
     } else {
       return httpRespStatusUtil.sendNotFound(res, {
-        status: "failed",
-        msg: "Can't find user",
+        status: 'failed',
+        message: "Can't find user",
       });
     }
   } catch (error) {
     return httpRespStatusUtil.sendServerError(res, {
-      status: "failed",
-      msg: "error occurred",
+      status: 'failed',
+      message: 'error occurred',
     });
   }
 };

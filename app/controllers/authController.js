@@ -30,7 +30,7 @@ const verifyAuthHandler = async (req, res, next) => {
   }
 
   const userService = new UserService({ userModel: db.User });
-  const tokenService = new TokenService();
+  const tokenService = new TokenService({ tokenModel: db.token });
 
   try {
     const user = await userService.findUserEmailByRole({
@@ -67,7 +67,7 @@ const verifyAuthHandler = async (req, res, next) => {
   } catch (error) {
     return httpRespStatusUtil.sendServerError(res, {
       status: 'failed',
-      msg: 'error occurred',
+      message: 'error occurred',
     });
   }
 };
@@ -87,7 +87,7 @@ const forgotPasswordWithEmailHandler = async (req, res, next) => {
     if (!checkUser) {
       return httpRespStatusUtil.sendBadRequest(res, {
         status: 'failed',
-        msg: 'Email not found!',
+        message: 'Email not found!',
       });
     }
 
@@ -95,13 +95,13 @@ const forgotPasswordWithEmailHandler = async (req, res, next) => {
     if (result) {
       return httpRespStatusUtil.sendOk(res, {
         status: 'success',
-        msg: 'Email has been send to your email',
+        message: 'Reset password has been send to your email',
       });
     }
   } catch (error) {
     return httpRespStatusUtil.sendServerError(res, {
       status: 'failed',
-      msg: 'error occurred',
+      message: 'error occurred',
     });
   }
 };
@@ -124,23 +124,26 @@ const updatePasswordHandler = async (req, res) => {
       });
     }
 
-    const result = await authService.resetPassword({
+    const { success, error: resetErr } = await authService.resetPassword({
       newPassword: value.password,
       resetPasswordToken,
     });
 
-    if (result) {
-      console.log(result);
+    if (success) {
       return httpRespStatusUtil.sendOk(res, {
         status: 'success',
-        msg: 'Reset password successfully',
+        message: 'Reset password successfully',
+      });
+    } else {
+      return httpRespStatusUtil.sendBadRequest(res, {
+        status: 'failed',
+        message: resetErr.message,
       });
     }
-    // return response('success', result);
   } catch (error) {
     return httpRespStatusUtil.sendServerError(res, {
       status: 'failed',
-      msg: 'error occurred',
+      message: 'error occurred',
     });
   }
 };

@@ -3,19 +3,17 @@ module.exports = {
     securitySchemes: {
       bearerAuth: {
         type: 'http',
+        in: 'header',
+        name: 'Authorization',
+        description: 'Bearer Token',
         scheme: 'bearer',
         bearerFormat: 'JWT',
       },
     },
-    security: [
-      {
-        bearerAuth: [],
-      },
-    ],
     schemas: {
-      UsersObject: {
+      Users: {
         type: 'object',
-        required: ['email', 'password', 'full_name', 'role', 'author'],
+        required: ['email', 'password', 'role'],
         properties: {
           email: {
             type: 'string',

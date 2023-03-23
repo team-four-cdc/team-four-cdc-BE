@@ -27,7 +27,7 @@ class AuthService {
         { email: params.email, role: params.role },
         { expiresIn: '1d' }
       );
-      const url = `${process.env.BASE_APP_URL}/auth/reset-password/?token=${generateToken}`;
+      const url = `${process.env.BASE_APP_URL}/ubah-password/${generateToken}?role=${params.role}`;
       const mailOptions = {
         from: 'CDC Team 4',
         to: params.email,

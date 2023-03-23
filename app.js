@@ -47,6 +47,6 @@ app.use((error, _req, res, next) => {
 });
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(docs));
-app.listen(port, async () => {
+app.listen(port, '0.0.0.0', async () => {
   console.log(`listening on port ${port}`);
 });

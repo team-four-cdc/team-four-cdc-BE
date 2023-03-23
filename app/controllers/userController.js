@@ -22,32 +22,22 @@ const createUserController = async (req, res) => {
   const { value, error } = validationResult;
 
   if (error) {
-    return httpRespStatusUtil.sendBadRequest(res, {
-      status: "failed",
-      message: "Invalid request",
-      data: error,
-    });
   }
 
   const userService = new UserService({ userModel: db.User });
   const mailService = new MailService();
   const tokenService = new TokenService();
 
-  const user = await userService.findDuplicateUser({
-    email: value.email,
-    role: value.role,
-  });
-
-  if (user) {
-    return httpRespStatusUtil.sendBadRequest(res, {
-      status: "failed",
-      message: "User already exists",
-    });
-  }
-
   try {
     const token = await tokenService.signToken({ email: value.email });
     const result = await userService.createUser({ ...value, token });
+
+    if (result.error) {
+      return httpRespStatusUtil.sendBadRequest(res, {
+        status: "failed",
+        message: result.error.message,
+      });
+    }
 
     mailService.sendVerificationEmail({ to: value.email, token });
 

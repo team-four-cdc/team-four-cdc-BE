@@ -12,6 +12,12 @@ class UserService {
     photo_url,
     token,
   }) {
+    const user = await this.findDuplicateUser({ email, role });
+
+    if (user) {
+      return { error: { message: "User already exists" } };
+    }
+
     return this.userModel.create({
       email,
       password,

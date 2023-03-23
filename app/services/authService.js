@@ -1,23 +1,13 @@
 const jwt = require('jsonwebtoken');
-const mailer = require('nodemailer');
 const TokenService = require('./tokenService');
-const emailHelper = require('../helpers/emailHelper');
+const MailService = require('../services/mailService');
 const db = require('../models');
 
 class AuthService {
   constructor({ userModel }) {
     this.userModel = userModel;
-    this.nodemailerTransport = mailer.createTransport({
-      service: 'gmail',
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASSWORD,
-      },
-    });
     this.tokenService = new TokenService({ tokenModel: db.Token });
+    this.mailService = new MailService();
   }
 
   async sendEmail(params) {
@@ -27,17 +17,7 @@ class AuthService {
         { email: params.email, role: params.role },
         { expiresIn: '1d' }
       );
-      const url = `${process.env.BASE_APP_URL}/ubah-password/${generateToken}?role=${params.role}`;
-      const mailOptions = {
-        from: 'CDC Team 4',
-        to: params.email,
-        subject: 'Reset Password',
-        text: `Reset your password`,
-        html: emailHelper.getEmailTemplateResetPassword({
-          username: params.full_name || params.email,
-          link: url,
-        }),
-      };
+      const url = `${process.env.FE_HOST}/ubah-password/${generateToken}?role=${params.role}`;
       const decodeToken = jwt.decode(generateToken);
       /*
       Store expire_in as unix format date 
@@ -47,7 +27,7 @@ class AuthService {
         generate_token: generateToken,
         expire_in: decodeToken['exp'],
       });
-      await this.nodemailerTransport.sendMail(mailOptions);
+      await this.mailService.sendForgotPasswordEmail({ to: params.email, url });
       return true;
     } catch (e) {
       throw e;

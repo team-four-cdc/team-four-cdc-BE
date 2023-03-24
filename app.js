@@ -8,6 +8,7 @@ const apiRouter = require('./app/routes');
 const corsConfig = require('./config/corsConfig');
 const docs = require('./docs');
 const port = process.env.PORT;
+const host = process.env.HOST;
 
 /* Returns middleware that only parses json and only looks at requests where the Content-Type header matches the type option.
 This parser accepts any Unicode encoding of the body and supports automatic inflation of gzip and deflate encodings.
@@ -47,6 +48,6 @@ app.use((error, _req, res, next) => {
 });
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(docs));
-app.listen(port, '0.0.0.0', async () => {
-  console.log(`listening on port ${port}`);
+app.listen(port, host, async () => {
+  console.log(`listening on port ${host} ${port}`);
 });

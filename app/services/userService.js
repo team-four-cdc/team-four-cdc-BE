@@ -59,8 +59,17 @@ class UserService {
 
   async findUserEmailByRole({ email, role }) {
     return await this.userModel.findOne({
+      logging: console.log,
       where: { email, role, is_verified: true },
     });
+  }
+
+  async updateUserToken(user, token) {
+    await user.update({ 
+      token: token,
+      hooks: false 
+    });
+    return await user.save();
   }
 }
 

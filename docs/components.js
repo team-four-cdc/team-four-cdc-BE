@@ -71,6 +71,33 @@ module.exports = {
           },
         },
       },
+      EmailInput: {
+        type: 'object',
+        required: ['email'],
+        properties: {
+          email: {
+            type: 'string',
+            description: 'Email user',
+            example: 'team4@gmail.com',
+          },
+        },
+      },
+      ResetPasswordInput: {
+        type: 'object',
+        required: ['newPassword', 'resetPasswordToken'],
+        properties: {
+          newPassword: {
+            type: 'string',
+            description: 'New password',
+            example: '12345678',
+          },
+          resetPasswordToken: {
+            type: 'string',
+            description: 'token',
+            example: 'random string',
+          },
+        },
+      },
       Error: {
         type: 'object',
         properties: {

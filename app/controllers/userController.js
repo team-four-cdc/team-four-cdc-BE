@@ -49,6 +49,13 @@ const createUserController = async (req, res) => {
     const token = await tokenService.signToken({ email: value.email });
     const result = await userService.createUser({ ...value, token });
 
+    if (result.error) {
+      return httpRespStatusUtil.sendBadRequest(res, {
+        status: "failed",
+        message: result.error.message,
+      });
+    }
+
     mailService.sendVerificationEmail({ to: value.email, token });
 
     return httpRespStatusUtil.sendOk(res, {

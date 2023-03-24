@@ -42,9 +42,10 @@ const verifyAuthHandler = async (req, res, next) => {
       const isValid = await verify(user.password, password);
       if (password && isValid) {
         const token = await tokenService.signToken(
-          { email: user.email },
-          { expiresIn: '1d' }
+          { email: email, role: req.params.role },
+          { expiresIn: '15d' }
         );
+        await userService.updateUserToken(user,token);
         return httpRespStatusUtil.sendOk(res, {
           status: 'success',
           message: 'Users authenticated',

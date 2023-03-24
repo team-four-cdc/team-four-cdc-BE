@@ -33,7 +33,19 @@ const createUserController = async (req, res) => {
 
   const userService = new UserService({ userModel: db.User });
   const mailService = new MailService();
-  const tokenService = new TokenService();
+  const tokenService = new TokenService({ tokenModel: db.Token });
+
+  const user = await userService.findDuplicateUser({
+    email: value.email,
+    role: value.role,
+  });
+
+  if (user) {
+    return httpRespStatusUtil.sendBadRequest(res, {
+      status: 'failed',
+      message: 'User already exists',
+    });
+  }
 
   try {
     const token = await tokenService.signToken({ email: value.email });
@@ -94,18 +106,18 @@ const verifyUserController = async (req, res) => {
       await userService.verifyUser(user);
       return httpRespStatusUtil.sendOk(res, {
         status: 'success',
-        msg: 'User verified',
+        message: 'User verified',
       });
     } else {
       return httpRespStatusUtil.sendNotFound(res, {
         status: 'failed',
-        msg: "Can't find user",
+        message: "Can't find user",
       });
     }
   } catch (error) {
     return httpRespStatusUtil.sendServerError(res, {
       status: 'failed',
-      msg: 'error occurred',
+      message: 'error occurred',
     });
   }
 };

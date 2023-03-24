@@ -1,6 +1,7 @@
 const appRoot = require('app-root-path');
 const smtpConfig = require(`${appRoot}/config/smtpConfig`);
 const nodemailer = require('nodemailer');
+const emailHelper = require('../helpers/emailHelper');
 
 class MailService {
   constructor() {}
@@ -21,6 +22,21 @@ class MailService {
     // Preview only available when sending through an Ethereal account
     console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
     // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+  }
+
+  async sendForgotPasswordEmail({ to, url }) {
+    const { from, ...config } = smtpConfig;
+    const transporter = nodemailer.createTransport(config);
+    return await transporter.sendMail({
+      from: `${from.name} <${from.email}>`,
+      to,
+      subject: 'Reset Password',
+      text: `Reset your password`,
+      html: emailHelper.getEmailTemplateResetPassword({
+        username: to,
+        link: url,
+      }),
+    });
   }
 }
 

@@ -9,7 +9,7 @@ module.exports = {
         content: {
           'application/json': {
             schema: {
-              $ref: '#/components/schemas/UsersObject',
+              $ref: '#/components/schemas/Users',
             },
           },
         },

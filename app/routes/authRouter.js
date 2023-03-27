@@ -4,7 +4,7 @@ const { authController } = require('../controllers');
 
 router.post('/login/:role', authController.verifyAuthHandler);
 router.post('/send-email/:role', authController.forgotPasswordWithEmailHandler);
-router.post('/reset-password', authController.updatePasswordHandler);
+router.put('/reset-password', authController.updatePasswordHandler);
 router.post('/refresh-token/:role', authController.refreshTokenHandler);
 
 module.exports = router;

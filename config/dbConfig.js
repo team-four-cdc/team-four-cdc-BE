@@ -1,5 +1,5 @@
-const toBoolean = require("to-bool");
-require("dotenv").config();
+const toBoolean = require('to-bool');
+require('dotenv').config();
 
 const dbConfig = {
   // use_env_variable:
@@ -13,7 +13,7 @@ const dbConfig = {
   port: process.env.POSTGRES_PORT,
   dialect: 'postgres',
   logging: false,
-  seederStorage: "sequelize",
+  seederStorage: 'sequelize',
 
   pool: {
     max: 5,

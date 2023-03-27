@@ -63,14 +63,6 @@ class UserService {
       where: { email, role, is_verified: true },
     });
   }
-
-  async updateUserToken(user, token) {
-    await user.update({ 
-      token: token,
-      hooks: false 
-    });
-    return await user.save();
-  }
 }
 
 module.exports = UserService;

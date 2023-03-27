@@ -5,6 +5,7 @@ const { passwordUsersSchema } = require('../validator/userValidator');
 const { httpRespStatusUtil } = require('../utils');
 const db = require('../models');
 const { verify } = require('argon2');
+const jwt = require('jsonwebtoken');
 
 const checkValidRole = async (req, res) => {
   const roleList = ['reader', 'creator'];
@@ -43,9 +44,8 @@ const verifyAuthHandler = async (req, res, next) => {
       if (password && isValid) {
         const token = await tokenService.signToken(
           { email: email, role: req.params.role },
-          { expiresIn: '15d' }
+          { expiresIn: '1d' }
         );
-        await userService.updateUserToken(user,token);
         return httpRespStatusUtil.sendOk(res, {
           status: 'success',
           message: 'Users authenticated',
@@ -149,8 +149,43 @@ const updatePasswordHandler = async (req, res) => {
   }
 };
 
+const refreshTokenHandler = async (req, res) => {
+  const { token } = req.body;
+  const tokenService = new TokenService({ tokenModel: db.token });
+  if (!(token)) {
+    return httpRespStatusUtil.sendBadRequest(res, {
+      status: 'failed',
+      message: 'Invalid request, all input is required',
+    });
+  }
+
+  try {
+    await checkValidRole(req, res);
+    const decodeToken = jwt.decode(token);
+    const signToken = await tokenService.signToken(
+      { email: decodeToken.email, role: req.params.role },
+      { expiresIn: '15d' }
+    );
+
+    return httpRespStatusUtil.sendOk(res, {
+      status: 'success',
+      message: 'Token Refreshed',
+      data: {
+        signToken,
+      },
+    });
+
+  } catch (error) {
+    return httpRespStatusUtil.sendServerError(res, {
+      status: 'failed',
+      message: 'error occurred',
+    });
+  }
+};
+
 module.exports = {
   verifyAuthHandler,
   forgotPasswordWithEmailHandler,
   updatePasswordHandler,
+  refreshTokenHandler
 };

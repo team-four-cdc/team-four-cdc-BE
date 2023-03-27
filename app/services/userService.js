@@ -15,7 +15,7 @@ class UserService {
     const user = await this.findDuplicateUser({ email, role });
 
     if (user) {
-      return { error: { message: "User already exists" } };
+      return { error: { message: 'User already exists' } };
     }
 
     return this.userModel.create({

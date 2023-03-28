@@ -11,6 +11,11 @@ class TokenService {
     return token;
   }
 
+  async decodeToken(payload, options = undefined) {
+    const result = jwt.decode(payload.token, process.env.SECRET, options);
+    return result;
+  }
+
   async storeToken(payload) {
     return this.tokenModel.create({
       ...payload,

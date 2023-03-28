@@ -7,6 +7,7 @@ const {
 } = require('../validator/userValidator');
 const { httpRespStatusUtil } = require('../utils');
 const db = require('../models');
+const status = require('../constants/status');
 
 const createUserController = async (req, res) => {
   const { email, password, full_name, role, author } = req.body;
@@ -22,10 +23,11 @@ const createUserController = async (req, res) => {
   const { value, error } = validationResult;
 
   if (error) {
-    return httpRespStatusUtil.sendBadRequest(res, {
-      status: 'failed',
-      message: 'Invalid request',
-      data: error,
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_400_BAD_REQUEST,
+      message: 'Validation Error',
+      error,
     });
   }
 
@@ -50,22 +52,29 @@ const createUserController = async (req, res) => {
     const result = await userService.createUser({ ...value, token });
 
     if (result.error) {
-      return httpRespStatusUtil.sendBadRequest(res, {
-        status: "failed",
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_500_INTERNAL_SERVER_ERROR,
         message: result.error.message,
+        error: result.error,
       });
     }
 
     mailService.sendVerificationEmail({ to: value.email, token });
 
-    return httpRespStatusUtil.sendOk(res, {
-      status: 'success',
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_200_OK,
       message: `User ${value.email} created`,
+      error: null,
     });
   } catch (error) {
-    return httpRespStatusUtil.sendServerError(res, {
-      status: 'failed',
-      message: 'error occurred',
+    console.log(error);
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_500,
+      message: 'Error occured',
+      error,
     });
   }
 };
@@ -80,10 +89,11 @@ const verifyUserController = async (req, res) => {
   const { value, error } = validationResult;
 
   if (error) {
-    return httpRespStatusUtil.sendBadRequest(res, {
-      status: 'failed',
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_400_BAD_REQUEST,
       message: 'Invalid request',
-      data: error,
+      error,
     });
   }
 

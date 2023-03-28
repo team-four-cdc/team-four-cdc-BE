@@ -1,7 +1,5 @@
-const appRoot = require('app-root-path');
-
-const httpRespStatusUtil = require(`${appRoot}/app/utils/httpResStatusUtil`)();
+const httpRespStatusUtil = require('./httpResStatusUtil');
 
 module.exports = {
-  httpRespStatusUtil
+  httpRespStatusUtil,
 };

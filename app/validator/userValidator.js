@@ -10,7 +10,11 @@ const registerUserSchema = Joi.object({
   password: passwordSchema,
   full_name: Joi.string().required(),
   role: Joi.string().valid('reader', 'creator').required(),
-  author: Joi.string().required(),
+  author: Joi.any().when('role', {
+    is: 'creator',
+    then: Joi.string().required(),
+    otherwise: Joi.optional(),
+  }),
 });
 
 const verifyUserSchema = Joi.object({

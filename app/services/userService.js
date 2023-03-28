@@ -63,6 +63,14 @@ class UserService {
       where: { email, role, is_verified: true },
     });
   }
+
+  async checkValidRole(role) {
+  const roleList = ['reader', 'creator'];
+    if (!roleList.includes(role)) {
+      return false
+    }
+    return true
+  };
 }
 
 module.exports = UserService;

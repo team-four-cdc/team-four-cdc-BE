@@ -24,7 +24,14 @@ const checkValidRole = async (req, res) => {
 const verifyAuthHandler = async (req, res, next) => {
   const { email, password } = req.body;
 
-  await checkValidRole(req, res);
+  const userService = new UserService({ userModel: db.User });
+  const valid = await userService.checkValidRole(req.params.role);
+  if (!valid) {
+    return httpRespStatusUtil.sendBadRequest(res, {
+      status: 'failed',
+      message: 'User Role is not valid',
+    });
+  }
 
   if (!(email && password)) {
     return httpRespStatusUtil.sendBadRequest(res, {
@@ -33,7 +40,6 @@ const verifyAuthHandler = async (req, res, next) => {
     });
   }
 
-  const userService = new UserService({ userModel: db.User });
   const tokenService = new TokenService({ tokenModel: db.token });
 
   try {
@@ -81,7 +87,13 @@ const forgotPasswordWithEmailHandler = async (req, res, next) => {
   const authService = new AuthService({ userModel: db.User });
   const userService = new UserService({ userModel: db.User });
 
-  await checkValidRole(req, res);
+  const valid = await userService.checkValidRole(req.params.role);
+  if (!valid) {
+    return httpRespStatusUtil.sendBadRequest(res, {
+      status: 'failed',
+      message: 'User Role is not valid',
+    });
+  }
 
   try {
     const checkUser = await userService.findUserEmailByRole({
@@ -168,10 +180,25 @@ const refreshTokenHandler = async (req, res) => {
 
   const { value, error } = validationResult;
 
-  const tokenService = new TokenService({ tokenModel: db.token });
+  if (error) {
+    return httpRespStatusUtil.sendBadRequest(res, {
+      status: 'failed',
+      message: 'Invalid request',
+      data: error,
+    });
+  }
 
+  const tokenService = new TokenService({ tokenModel: db.token });
+  const userService = new UserService({ userModel: db.User });
+  const valid = await userService.checkValidRole(req.params.role);
+  if (!valid) {
+    return httpRespStatusUtil.sendBadRequest(res, {
+      status: 'failed',
+      message: 'User Role is not valid',
+    });
+  }
+  
   try {
-    await checkValidRole(req, res);
     const userData = await tokenService.decodeToken(
       {token:value.token}
     )

@@ -64,13 +64,13 @@ class UserService {
     });
   }
 
-  async updateUserToken(user, token) {
-    await user.update({ 
-      token: token,
-      hooks: false 
-    });
-    return await user.save();
-  }
+  async checkValidRole(role) {
+  const roleList = ['reader', 'creator'];
+    if (!roleList.includes(role)) {
+      return false
+    }
+    return true
+  };
 }
 
 module.exports = UserService;

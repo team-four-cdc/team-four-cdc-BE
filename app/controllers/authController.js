@@ -3,8 +3,12 @@ const AuthService = require('../services/authService');
 const TokenService = require('../services/tokenService');
 const { passwordUsersSchema } = require('../validator/userValidator');
 const { httpRespStatusUtil } = require('../utils');
+const {
+  verifyUserSchema,
+} = require('../validator/userValidator');
 const db = require('../models');
 const { verify } = require('argon2');
+const jwt = require('jsonwebtoken');
 
 const checkValidRole = async (req, res) => {
   const roleList = ['reader', 'creator'];
@@ -20,7 +24,14 @@ const checkValidRole = async (req, res) => {
 const verifyAuthHandler = async (req, res, next) => {
   const { email, password } = req.body;
 
-  await checkValidRole(req, res);
+  const userService = new UserService({ userModel: db.User });
+  const valid = await userService.checkValidRole(req.params.role);
+  if (!valid) {
+    return httpRespStatusUtil.sendBadRequest(res, {
+      status: 'failed',
+      message: 'User Role is not valid',
+    });
+  }
 
   if (!(email && password)) {
     return httpRespStatusUtil.sendBadRequest(res, {
@@ -29,7 +40,6 @@ const verifyAuthHandler = async (req, res, next) => {
     });
   }
 
-  const userService = new UserService({ userModel: db.User });
   const tokenService = new TokenService({ tokenModel: db.token });
 
   try {
@@ -43,9 +53,8 @@ const verifyAuthHandler = async (req, res, next) => {
       if (password && isValid) {
         const token = await tokenService.signToken(
           { email: email, role: req.params.role },
-          { expiresIn: '15d' }
+          { expiresIn: '1d' }
         );
-        await userService.updateUserToken(user,token);
         return httpRespStatusUtil.sendOk(res, {
           status: 'success',
           message: 'Users authenticated',
@@ -78,7 +87,13 @@ const forgotPasswordWithEmailHandler = async (req, res, next) => {
   const authService = new AuthService({ userModel: db.User });
   const userService = new UserService({ userModel: db.User });
 
-  await checkValidRole(req, res);
+  const valid = await userService.checkValidRole(req.params.role);
+  if (!valid) {
+    return httpRespStatusUtil.sendBadRequest(res, {
+      status: 'failed',
+      message: 'User Role is not valid',
+    });
+  }
 
   try {
     const checkUser = await userService.findUserEmailByRole({
@@ -149,8 +164,69 @@ const updatePasswordHandler = async (req, res) => {
   }
 };
 
+const refreshTokenHandler = async (req, res) => {
+  const { token } = req.body;
+  
+  if (!(token)) {
+    return httpRespStatusUtil.sendBadRequest(res, {
+      status: 'failed',
+      message: 'Invalid request, all input is required',
+    });
+  }
+
+  const validationResult = verifyUserSchema.validate({
+    token,
+  });
+
+  const { value, error } = validationResult;
+
+  if (error) {
+    return httpRespStatusUtil.sendBadRequest(res, {
+      status: 'failed',
+      message: 'Invalid request',
+      data: error,
+    });
+  }
+
+  const tokenService = new TokenService({ tokenModel: db.token });
+  const userService = new UserService({ userModel: db.User });
+  const valid = await userService.checkValidRole(req.params.role);
+  if (!valid) {
+    return httpRespStatusUtil.sendBadRequest(res, {
+      status: 'failed',
+      message: 'User Role is not valid',
+    });
+  }
+  
+  try {
+    const userData = await tokenService.decodeToken(
+      {token:value.token}
+    )
+    const signToken = await tokenService.signToken(
+      { email: userData.email, role: req.params.role },
+      { expiresIn: '15d' }
+    );
+
+    return httpRespStatusUtil.sendOk(res, {
+      status: 'success',
+      message: 'Token Refreshed',
+      data: {
+        signToken,
+      },
+    });
+
+  } catch (error) {
+    console.log(error.message);
+    return httpRespStatusUtil.sendServerError(res, {
+      status: 'failed',
+      message: 'error occurred',
+    });
+  }
+};
+
 module.exports = {
   verifyAuthHandler,
   forgotPasswordWithEmailHandler,
   updatePasswordHandler,
+  refreshTokenHandler
 };

@@ -41,9 +41,11 @@ const createUserController = async (req, res) => {
   });
 
   if (user) {
-    return httpRespStatusUtil.sendBadRequest(res, {
-      status: 'failed',
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_400_BAD_REQUEST,
       message: 'User already exists',
+      error: result.error,
     });
   }
 
@@ -66,15 +68,12 @@ const createUserController = async (req, res) => {
       res,
       status: status.HTTP_200_OK,
       message: `User ${value.email} created`,
-      error: null,
     });
   } catch (error) {
-    console.log(error);
     return httpRespStatusUtil.sendResponse({
       res,
-      status: status.HTTP_500,
+      status: status.HTTP_500_INTERNAL_SERVER_ERROR,
       message: 'Error occured',
-      error,
     });
   }
 };
@@ -92,7 +91,7 @@ const verifyUserController = async (req, res) => {
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_400_BAD_REQUEST,
-      message: 'Invalid request',
+      message: 'Validation Error',
       error,
     });
   }
@@ -104,19 +103,23 @@ const verifyUserController = async (req, res) => {
 
     if (user) {
       await userService.verifyUser(user);
-      return httpRespStatusUtil.sendOk(res, {
-        status: 'success',
+
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_200_OK,
         message: 'User verified',
       });
     } else {
-      return httpRespStatusUtil.sendNotFound(res, {
-        status: 'failed',
-        message: "Can't find user",
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_404_NOT_FOUND,
+        message: 'User not found',
       });
     }
   } catch (error) {
-    return httpRespStatusUtil.sendServerError(res, {
-      status: 'failed',
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_500_INTERNAL_SERVER_ERROR,
       message: 'error occurred',
     });
   }

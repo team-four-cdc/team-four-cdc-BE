@@ -45,12 +45,14 @@ const createUserController = async (req, res) => {
       res,
       status: status.HTTP_400_BAD_REQUEST,
       message: 'User already exists',
-      error: result.error,
     });
   }
 
   try {
-    const token = await tokenService.signToken({ email: value.email });
+    const token = await tokenService.signToken({
+      email: value.email,
+      role: value.role,
+    });
     const result = await userService.createUser({ ...value, token });
 
     if (result.error) {

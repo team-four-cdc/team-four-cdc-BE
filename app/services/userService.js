@@ -65,12 +65,12 @@ class UserService {
   }
 
   async checkValidRole(role) {
-  const roleList = ['reader', 'creator'];
+    const roleList = ['reader', 'creator'];
     if (!roleList.includes(role)) {
-      return false
+      return false;
     }
-    return true
-  };
+    return true;
+  }
 }
 
 module.exports = UserService;

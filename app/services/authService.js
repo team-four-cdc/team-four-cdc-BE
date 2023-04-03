@@ -34,28 +34,31 @@ class AuthService {
     }
   }
 
-  async resetPassword(params) {
+  async resetPassword({ newPassword, resetPasswordToken }) {
     try {
-      const extractedToken = jwt.decode(params.resetPasswordToken);
+      const extractedToken = jwt.decode(resetPasswordToken);
 
       const isValidToken = await this.tokenService.isValidToken({
-        generate_token: params.resetPasswordToken,
+        generate_token: resetPasswordToken,
       });
 
       if (isValidToken) {
         await this.userModel.update(
-          { password: params.newPassword },
+          { password: newPassword },
           {
             where: {
               email: extractedToken['email'],
               role: extractedToken['role'],
+              is_verified: true,
             },
             individualHooks: true,
           }
         );
+
         await this.tokenService.deleteToken({
-          generate_token: params.resetPasswordToken,
+          generate_token: resetPasswordToken,
         });
+
         return { success: true, error: null };
       }
 

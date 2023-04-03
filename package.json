@@ -8,6 +8,7 @@
     "lint": "eslint app.js --fix",
     "lint:check": "eslint .",
     "test": "jest",
+    "test:coverage": "jest --coverage",
     "migrate": "npx sequelize-cli db:migrate"
   },
   "repository": {

@@ -17,12 +17,31 @@ const registerUserSchema = Joi.object({
   }),
 });
 
+const loginUserSchema = Joi.object({
+  email: Joi.string().email({ tlds: false }).required(),
+  password: passwordSchema,
+  role: Joi.string().valid('reader', 'creator').required(),
+});
+
+const forgotPasswordSchema = Joi.object({
+  email: Joi.string().email({ tlds: false }).required(),
+  role: Joi.string().valid('reader', 'creator').required(),
+});
+
 const verifyUserSchema = Joi.object({
   token: Joi.string().required(),
+  role: Joi.string().valid('reader', 'creator').required(),
 });
 
 const passwordUsersSchema = Joi.object({
-  password: passwordSchema,
+  newPassword: passwordSchema,
+  resetPasswordToken: Joi.string().required(),
 });
 
-module.exports = { registerUserSchema, verifyUserSchema, passwordUsersSchema };
+module.exports = {
+  registerUserSchema,
+  loginUserSchema,
+  forgotPasswordSchema,
+  verifyUserSchema,
+  passwordUsersSchema,
+};

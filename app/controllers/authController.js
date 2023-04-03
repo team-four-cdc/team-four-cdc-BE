@@ -1,42 +1,33 @@
 const UserService = require('../services/userService');
 const AuthService = require('../services/authService');
 const TokenService = require('../services/tokenService');
-const { passwordUsersSchema } = require('../validator/userValidator');
+const {
+  passwordUsersSchema,
+  forgotPasswordSchema,
+} = require('../validator/userValidator');
 const { httpRespStatusUtil } = require('../utils');
 const {
+  loginUserSchema,
   verifyUserSchema,
 } = require('../validator/userValidator');
 const db = require('../models');
+const status = require('../constants/status');
 const { verify } = require('argon2');
-const jwt = require('jsonwebtoken');
-
-const checkValidRole = async (req, res) => {
-  const roleList = ['reader', 'creator'];
-
-  if (!roleList.includes(req.params.role)) {
-    return httpRespStatusUtil.sendBadRequest(res, {
-      status: 'failed',
-      message: 'Invalid role',
-    });
-  }
-};
 
 const verifyAuthHandler = async (req, res, next) => {
   const { email, password } = req.body;
+  const { role } = req.params;
 
   const userService = new UserService({ userModel: db.User });
-  const valid = await userService.checkValidRole(req.params.role);
-  if (!valid) {
-    return httpRespStatusUtil.sendBadRequest(res, {
-      status: 'failed',
-      message: 'User Role is not valid',
-    });
-  }
 
-  if (!(email && password)) {
-    return httpRespStatusUtil.sendBadRequest(res, {
-      status: 'failed',
-      message: 'Invalid request, all input is required',
+  const { error } = loginUserSchema.validate({ email, password, role });
+
+  if (error) {
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_400_BAD_REQUEST,
+      message: 'Validation Error',
+      error,
     });
   }
 
@@ -45,79 +36,95 @@ const verifyAuthHandler = async (req, res, next) => {
   try {
     const user = await userService.findUserEmailByRole({
       email,
-      role: req.params.role,
+      role,
     });
 
     if (user) {
       const isValid = await verify(user.password, password);
       if (password && isValid) {
         const token = await tokenService.signToken(
-          { email: email, role: req.params.role },
+          { email, role },
           { expiresIn: '1d' }
         );
-        return httpRespStatusUtil.sendOk(res, {
-          status: 'success',
+
+        return httpRespStatusUtil.sendResponse({
+          res,
+          status: status.HTTP_200_OK,
           message: 'Users authenticated',
           data: {
             token,
           },
         });
       } else {
-        return httpRespStatusUtil.sendUnauthorized(res, {
-          status: 'failed',
+        return httpRespStatusUtil.sendResponse({
+          res,
+          status: status.HTTP_401_UNAUTHORIZED,
           message: 'Invalid credentials',
         });
       }
     } else {
-      return httpRespStatusUtil.sendBadRequest(res, {
-        status: 'failed',
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_400_BAD_REQUEST,
         message: 'Invalid request, user not valid',
       });
     }
   } catch (error) {
-    return httpRespStatusUtil.sendServerError(res, {
-      status: 'failed',
-      message: 'error occurred',
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+      message: 'Error occured',
     });
   }
 };
 
 const forgotPasswordWithEmailHandler = async (req, res, next) => {
   const { email } = req.body;
-  const authService = new AuthService({ userModel: db.User });
-  const userService = new UserService({ userModel: db.User });
+  const { role } = req.params;
 
-  const valid = await userService.checkValidRole(req.params.role);
-  if (!valid) {
-    return httpRespStatusUtil.sendBadRequest(res, {
-      status: 'failed',
-      message: 'User Role is not valid',
+  const { error } = forgotPasswordSchema.validate({ email, role });
+
+  if (error) {
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_400_BAD_REQUEST,
+      message: 'Validation Error',
+      error,
     });
   }
 
+  const authService = new AuthService({ userModel: db.User });
+  const userService = new UserService({ userModel: db.User });
+
   try {
-    const checkUser = await userService.findUserEmailByRole({
+    const user = await userService.findUserEmailByRole({
       email,
-      role: req.params.role,
+      role,
     });
-    if (!checkUser) {
-      return httpRespStatusUtil.sendBadRequest(res, {
-        status: 'failed',
-        message: 'Email not found!',
+
+    if (!user) {
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_404_NOT_FOUND,
+        message: 'Email not found',
       });
     }
 
-    const result = await authService.sendEmail(checkUser);
+    const result = await authService.sendEmail(user);
+
     if (result) {
-      return httpRespStatusUtil.sendOk(res, {
-        status: 'success',
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_200_OK,
         message: 'Reset password has been send to your email',
       });
     }
   } catch (error) {
-    return httpRespStatusUtil.sendServerError(res, {
-      status: 'failed',
-      message: 'error occurred',
+    console.log(error);
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+      message: 'Error occured',
     });
   }
 };
@@ -127,99 +134,106 @@ const updatePasswordHandler = async (req, res) => {
   const authService = new AuthService({ userModel: db.User });
 
   try {
-    const validationResult = passwordUsersSchema.validate({
-      password: newPassword,
+    const { error } = passwordUsersSchema.validate({
+      newPassword,
+      resetPasswordToken,
     });
 
-    const { value, error } = validationResult;
     if (error) {
-      return httpRespStatusUtil.sendBadRequest(res, {
-        status: 'failed',
-        message: 'Invalid request',
-        data: error,
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_400_BAD_REQUEST,
+        message: 'Validation Error',
+        error,
       });
     }
 
     const { success, error: resetErr } = await authService.resetPassword({
-      newPassword: value.password,
+      newPassword,
       resetPasswordToken,
     });
 
     if (success) {
-      return httpRespStatusUtil.sendOk(res, {
-        status: 'success',
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_200_OK,
         message: 'Reset password successfully',
       });
     } else {
-      return httpRespStatusUtil.sendBadRequest(res, {
-        status: 'failed',
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_400_BAD_REQUEST,
         message: resetErr.message,
       });
     }
   } catch (error) {
-    return httpRespStatusUtil.sendServerError(res, {
-      status: 'failed',
-      message: 'error occurred',
+    console.log(error);
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+      message: 'Error occured',
     });
   }
 };
 
 const refreshTokenHandler = async (req, res) => {
   const { token } = req.body;
-  
-  if (!(token)) {
-    return httpRespStatusUtil.sendBadRequest(res, {
-      status: 'failed',
-      message: 'Invalid request, all input is required',
-    });
-  }
+  const { role } = req.params;
 
-  const validationResult = verifyUserSchema.validate({
+  const { error } = verifyUserSchema.validate({
     token,
+    role,
   });
 
-  const { value, error } = validationResult;
-
   if (error) {
-    return httpRespStatusUtil.sendBadRequest(res, {
-      status: 'failed',
-      message: 'Invalid request',
-      data: error,
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_400_BAD_REQUEST,
+      message: 'Validation Error',
+      error,
     });
   }
 
   const tokenService = new TokenService({ tokenModel: db.token });
-  const userService = new UserService({ userModel: db.User });
-  const valid = await userService.checkValidRole(req.params.role);
-  if (!valid) {
-    return httpRespStatusUtil.sendBadRequest(res, {
-      status: 'failed',
-      message: 'User Role is not valid',
-    });
-  }
-  
+
   try {
-    const userData = await tokenService.decodeToken(
-      {token:value.token}
-    )
-    const signToken = await tokenService.signToken(
-      { email: userData.email, role: req.params.role },
-      { expiresIn: '15d' }
-    );
+    const userPayload = await tokenService.verifyToken({ token });
 
-    return httpRespStatusUtil.sendOk(res, {
-      status: 'success',
-      message: 'Token Refreshed',
-      data: {
-        signToken,
-      },
-    });
+    if (role !== userPayload.role) {
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_400_BAD_REQUEST,
+        message: 'Verify token error, role mismatch',
+      });
+    }
+    try {
+      const signToken = await tokenService.signToken(
+        { email: userPayload.email, role: userPayload.role },
+        { expiresIn: '15d' }
+      );
 
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_200_OK,
+        message: 'Token Refreshed',
+        data: {
+          signToken,
+        },
+      });
+    } catch (error) {
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+        message: 'Error occured',
+      });
+    }
   } catch (error) {
-    console.log(error.message);
-    return httpRespStatusUtil.sendServerError(res, {
-      status: 'failed',
-      message: 'error occurred',
+    console.log(error);
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_400_BAD_REQUEST,
+      message: 'Verify token error',
+      error,
     });
   }
 };
@@ -228,5 +242,5 @@ module.exports = {
   verifyAuthHandler,
   forgotPasswordWithEmailHandler,
   updatePasswordHandler,
-  refreshTokenHandler
+  refreshTokenHandler,
 };

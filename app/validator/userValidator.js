@@ -30,7 +30,7 @@ const forgotPasswordSchema = Joi.object({
 
 const verifyUserSchema = Joi.object({
   token: Joi.string().required(),
-  role: Joi.string().valid('reader', 'creator').required(),
+  role: Joi.string().valid('reader', 'creator'),
 });
 
 const passwordUsersSchema = Joi.object({

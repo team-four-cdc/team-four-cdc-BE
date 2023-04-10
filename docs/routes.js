@@ -2,6 +2,7 @@ const authRoute = require('./auth');
 const userRoute = require('./users');
 const networkRoute = require('./network');
 const categoryRoute = require('./category');
+const articleRoute = require('./article');
 
 module.exports = {
   paths: {
@@ -9,5 +10,6 @@ module.exports = {
     ...userRoute,
     ...networkRoute,
     ...categoryRoute,
+    ...articleRoute,
   },
 };

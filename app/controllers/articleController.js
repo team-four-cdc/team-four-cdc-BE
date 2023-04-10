@@ -1,18 +1,18 @@
-const CategoryService = require('../services/categoryService');
+const ArticleService = require('../services/articleService');
 const { httpRespStatusUtil } = require('../utils');
 const status = require('../constants/status');
 
-const getCategoryListing = async (req, res) => {
-  const categoryService = new CategoryService();
+const getArticleListing = async (req, res) => {
+  const articleService = new ArticleService();
   try {
-    categoryService
+    articleService
       .getListing()
-      .then((category) => {
+      .then((article) => {
         return httpRespStatusUtil.sendResponse({
           res,
           status: status.HTTP_200_OK,
           message: 'success',
-          data: category,
+          data: article,
         });
       })
       .catch((error) => {
@@ -32,4 +32,4 @@ const getCategoryListing = async (req, res) => {
   }
 };
 
-module.exports = { getCategoryListing };
+module.exports = { getArticleListing };

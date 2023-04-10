@@ -120,7 +120,6 @@ const forgotPasswordWithEmailHandler = async (req, res, next) => {
       });
     }
   } catch (error) {
-    console.log(error);
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -167,7 +166,6 @@ const updatePasswordHandler = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -228,7 +226,6 @@ const refreshTokenHandler = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_400_BAD_REQUEST,

@@ -52,15 +52,5 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  User.beforeCreate(async (user) => {
-    const hashedPassword = await hash(user.password);
-    user.password = hashedPassword;
-  });
-
-  User.beforeUpdate(async (user) => {
-    const hashedPassword = await hash(user.password);
-    user.password = hashedPassword;
-  });
-
   return User;
 };

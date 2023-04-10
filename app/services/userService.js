@@ -1,3 +1,4 @@
+const { hash } = require('../utils/hashPassword');
 class UserService {
   constructor({ userModel }) {
     this.userModel = userModel;
@@ -18,9 +19,11 @@ class UserService {
       return { error: { message: 'User already exists' } };
     }
 
+    const hashedPassword = await hash(password);
+
     return this.userModel.create({
       email,
-      password,
+      password: hashedPassword,
       full_name,
       role,
       author,

@@ -1,0 +1,16 @@
+const express = require('express');
+const router = express.Router();
+const { articleController } = require('../controllers');
+const { authJWT } = require('../middlewares/authJWT');
+const { uploadCover } = require('../middlewares/upload');
+
+router.post(
+  '/:userId/article',
+  authJWT,
+  uploadCover,
+  articleController.createArticleHandler
+);
+
+router.get('/listing', articleController.getArticleListing);
+
+module.exports = router;

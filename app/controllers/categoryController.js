@@ -1,10 +1,9 @@
 const CategoryService = require('../services/categoryService');
 const { httpRespStatusUtil } = require('../utils');
-const db = require('../models/category');
 const status = require('../constants/status');
 
 const getCategoryListing = async (req, res) => {
-  const categoryService = new CategoryService({ userModel: db.User });
+  const categoryService = new CategoryService();
   try {
     categoryService
       .getListing()

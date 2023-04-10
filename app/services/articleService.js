@@ -1,8 +1,7 @@
-const db = require('../models');
-
 class ArticleService {
-  constructor({ articleModel }) {
+  constructor({ articleModel, userModel }) {
     this.articleModel = articleModel;
+    this.userModel = userModel;
   }
 
   async createArticle({
@@ -22,6 +21,19 @@ class ArticleService {
       photo_article: photoArticle,
       price,
       category_id: categoryId,
+    });
+  }
+
+  async getListing() {
+    return await this.articleModel.findAll({
+      include: {
+        model: this.userModel,
+        attributes: {
+          exclude: ['password', 'token', 'is_verified'],
+        },
+        as: 'author',
+      },
+      order: [['createdAt', 'DESC']],
     });
   }
 }

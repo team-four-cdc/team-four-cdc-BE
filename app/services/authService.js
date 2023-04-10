@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const TokenService = require('./tokenService');
 const MailService = require('../services/mailService');
 const db = require('../models');
-
+const { hash } = require('../utils/hashPassword');
 class AuthService {
   constructor({ userModel }) {
     this.userModel = userModel;
@@ -43,15 +43,16 @@ class AuthService {
       });
 
       if (isValidToken) {
+        const hashedPassword = await hash(newPassword);
+
         await this.userModel.update(
-          { password: newPassword },
+          { password: hashedPassword },
           {
             where: {
               email: extractedToken['email'],
               role: extractedToken['role'],
               is_verified: true,
             },
-            individualHooks: true,
           }
         );
 

@@ -11,4 +11,6 @@ router.post(
   articleController.createArticleHandler
 );
 
+router.get('/listing', articleController.getArticleListing);
+
 module.exports = router;

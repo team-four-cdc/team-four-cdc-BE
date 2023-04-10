@@ -27,7 +27,10 @@ const createArticleHandler = async (req, res) => {
     });
   }
 
-  const articleService = new ArticleService({ articleModel: db.Article });
+  const articleService = new ArticleService({
+    articleModel: db.Article,
+    userModel: db.User,
+  });
 
   const article = await articleService.createArticle({
     title,
@@ -47,4 +50,37 @@ const createArticleHandler = async (req, res) => {
   });
 };
 
-module.exports = { createArticleHandler };
+const getArticleListing = async (req, res) => {
+  const articleService = new ArticleService({
+    articleModel: db.Article,
+    userModel: db.User,
+  });
+  try {
+    articleService
+      .getListing()
+      .then((article) => {
+        return httpRespStatusUtil.sendResponse({
+          res,
+          status: status.HTTP_200_OK,
+          message: 'success',
+          data: article,
+        });
+      })
+      .catch((error) => {
+        return httpRespStatusUtil.sendResponse({
+          res,
+          status: status.HTTP_404_NOT_FOUND,
+          message: 'failed',
+          error,
+        });
+      });
+  } catch (error) {
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+      message: 'error occurred',
+    });
+  }
+};
+
+module.exports = { createArticleHandler, getArticleListing };

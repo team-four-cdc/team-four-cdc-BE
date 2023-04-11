@@ -4,13 +4,22 @@ const { articleController } = require('../controllers');
 const { authJWT } = require('../middlewares/authJWT');
 const { uploadCover } = require('../middlewares/upload');
 
+router.get('/listing', articleController.getArticleListing);
+
 router.post(
-  '/:userId/article',
+  '/create',
   authJWT,
   uploadCover,
   articleController.createArticleHandler
 );
 
-router.get('/listing', articleController.getArticleListing);
+router.put(
+  '/:articleId',
+  authJWT,
+  uploadCover,
+  articleController.updateArticleHandler
+);
+
+router.delete('/:articleId', authJWT, articleController.deleteArticleHandler);
 
 module.exports = router;

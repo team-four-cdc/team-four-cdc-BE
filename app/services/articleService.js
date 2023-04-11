@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 class ArticleService {
   constructor({ articleModel, userModel }) {
     this.articleModel = articleModel;
@@ -24,8 +25,8 @@ class ArticleService {
     });
   }
 
-  async getListing() {
-    return await this.articleModel.findAll({
+  async getListing({ userId }) {
+    const query = {
       include: {
         model: this.userModel,
         attributes: {
@@ -34,6 +35,39 @@ class ArticleService {
         as: 'author',
       },
       order: [['createdAt', 'DESC']],
+    };
+
+    if (userId) {
+      if (Array.isArray(userId)) {
+        query.where = {
+          author_id: {
+            [Op.or]: userId,
+          },
+        };
+      } else {
+        query.where = {
+          author_id: userId,
+        };
+      }
+    }
+    return await this.articleModel.findAll(query);
+  }
+
+  async updateArticle({ articleId, title, body, description, price }) {
+    return this.articleModel.update(
+      {
+        title,
+        body,
+        description,
+        price,
+      },
+      { where: { id: articleId } }
+    );
+  }
+
+  async deleteArticle({ articleId }) {
+    return this.articleModel.destroy({
+      where: { id: articleId },
     });
   }
 }

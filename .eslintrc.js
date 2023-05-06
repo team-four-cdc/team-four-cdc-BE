@@ -12,6 +12,6 @@ module.exports = {
     'no-param-reassign': ['error', { props: false }],
     'dot-notation': ['error', { allowPattern: '^[a-z]+(_[a-z]+)+$' }],
     'linebreak-style': 0,
-    'operator-linebreaks': 'none',
+    'operator-linebreak': ['error', 'none'],
   },
 };

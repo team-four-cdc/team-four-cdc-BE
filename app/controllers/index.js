@@ -7,6 +7,7 @@ const authController = require('./authController');
 const categoryController = require('./categoryController');
 const articleController = require('./articleController');
 const mediaController = require('./mediaController');
+const paymentController = require('./paymentController');
 
 module.exports = {
   networkController,
@@ -15,4 +16,5 @@ module.exports = {
   categoryController,
   articleController,
   mediaController,
+  paymentController,
 };

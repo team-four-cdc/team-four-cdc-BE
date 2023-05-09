@@ -49,5 +49,6 @@ app.use((error, _req, res, next) => {
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(docs));
 app.listen(port, host, async () => {
+  // eslint-disable-next-line no-console
   console.log(`listening on port ${host} ${port}`);
 });

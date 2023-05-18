@@ -1,8 +1,11 @@
 name: Deploy Backend
 
 on:
-  pull_request:
+  workflow_run:
+    workflows: ["Build Backend"]
     branches: [ "develop" ]
+    types:
+      - completed
 
 jobs:
   deploy:
@@ -15,4 +18,10 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
-        script: whoami
+        script: |
+          cd ~/team-four-cdc-BE/
+          git checkout develop
+          git pull
+          sudo docker build -t portal-article-image .
+          sudo docker stop portal-artical-container
+          sudo dcoker compose up -d app

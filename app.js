@@ -47,10 +47,6 @@ app.use((error, _req, res, next) => {
   next();
 });
 
-app.get('/test-hello', (req, res) => {
-  res.send('Hello World!');
-});
-
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(docs));
 app.listen(port, host, async () => {
   // eslint-disable-next-line no-console

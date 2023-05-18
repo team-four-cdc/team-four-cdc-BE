@@ -1,4 +1,13 @@
 services:
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - progres_vol:/var/lib/postgresql/data
+    env_file:
+      - ./.env
   app:
     build: ./
     depends_on:
@@ -12,14 +21,5 @@ services:
     environment:
       - HOST=0.0.0.0
       - POSTGRES_HOST=postgres
-  postgres:
-    image: postgres:14
-    container_name: postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - progres_vol:/var/lib/postgresql/data
-    env_file:
-      - ./.env
 volumes:
   progres_vol:

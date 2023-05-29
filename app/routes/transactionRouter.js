@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { paymentController } = require('../controllers');
+const { transactionController } = require('../controllers');
 const { authJWT } = require('../middlewares/authJWT');
 
 router.post(
   '/create',
-  authJWT,
-  paymentController.createPaymentHandler
+  // authJWT,
+  transactionController.createTransactionHandler
 );
 
 module.exports = router;

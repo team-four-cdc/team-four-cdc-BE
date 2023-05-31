@@ -1,8 +1,52 @@
 const ArticleService = require('../services/articleService');
+const TransactionService = require('../services/transactionService');
 const { httpRespStatusUtil } = require('../utils');
 const { createArticleSchema } = require('../validator/articleValidator');
 const db = require('../models');
 const status = require('../constants/status');
+
+const getDashboard = async (req, res) => {
+  const { userId } = req.query;
+
+  const articleService = new ArticleService({
+    articleModel: db.Article,
+    userModel: db.User,
+  });
+
+  const transactionService = new TransactionService({
+    transactionModel: db.Transaction,
+    articleModel: db.Article,
+    userModel: db.User,
+  });
+
+  try {
+    const articles = await articleService.getRandomListing({userId})
+    const articleIds = []
+    articles.forEach(article => {
+      articleIds.push(article.id)
+    });
+    const transactions = await transactionService.getDashboardTransaction({articleIds})
+    transactions.forEach(transaction => {
+     console.log('transaction',transaction)
+    });
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_200_OK,
+      message: 'success',
+      data: {
+        topArticles:articles,
+        transactions:transactions
+      },
+    });
+  } catch (error) {
+    console.log("ERROR", error)
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+      message: 'error occurred',
+    });
+  }
+};
 
 const getArticleListing = async (req, res) => {
   const { userId } = req.query;
@@ -38,7 +82,7 @@ const getArticleListing = async (req, res) => {
       message: 'error occurred',
     });
   }
-};
+}
 
 const createArticleHandler = async (req, res) => {
   const { filename: photoArticle } = req.file;
@@ -185,4 +229,5 @@ module.exports = {
   getArticleListing,
   updateArticleHandler,
   deleteArticleHandler,
+  getDashboard
 };

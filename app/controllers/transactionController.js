@@ -1,18 +1,23 @@
-const PaymentService = require('../services/paymentService');
+const TransactionService = require('../services/transactionService');
 const { httpRespStatusUtil } = require('../utils');
-const { createPaymentSchema } = require('../validator/paymentValidator');
+const { createTransactionSchema } = require('../validator/transactionValidator');
 const db = require('../models');
 const status = require('../constants/status');
 
 
-const createPaymentHandler = async (req, res) => {
-  const { amountPaid,articleId,userId } = req.body;
+const createTransactionHandler = async (req, res) => {
 
-  const { error } = createPaymentSchema.validate({
-    amountPaid,
+  const { accountNumber,accountName,bankName,articleId,status,userId } = req.body;
+
+  const { error } = createTransactionSchema.validate({
+    accountNumber,
+    accountName,
+    bankName,
     articleId,
-    userId,
+    status,
+    userId
   });
+
 
   if (error) {
     return httpRespStatusUtil.sendResponse({
@@ -23,17 +28,20 @@ const createPaymentHandler = async (req, res) => {
     });
   }
 
-  const paymentService = new PaymentService({
-    paymentModel: db.Payments,
+  const transactionService = new TransactionService({
+    transactionModel: db.Transaction,
     articleModel: db.Article,
     userModel: db.User,
   });
 
   try {
-    const payment = await paymentService.createPayment({
-      userId,
-      articleId,
-      amountPaid,
+    const payment = await transactionService.createTransaction({
+      account_number : accountNumber,
+      account_name : accountName,
+      bank_name: bankName,
+      article_id: articleId,
+      status: status,
+      user_id: userId
     });
 
     return httpRespStatusUtil.sendResponse({
@@ -64,5 +72,5 @@ const createPaymentHandler = async (req, res) => {
 
 
 module.exports = {
-  createPaymentHandler,
+  createTransactionHandler,
 };

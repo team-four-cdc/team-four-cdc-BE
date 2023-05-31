@@ -53,6 +53,35 @@ class ArticleService {
     return await this.articleModel.findAll(query);
   }
 
+  async getRandomListing({ userId }) {
+    const query = {
+      include: {
+        model: this.userModel,
+        attributes: {
+          exclude: ['password', 'token', 'is_verified'],
+        },
+        as: 'author',
+      },
+      order: [['createdAt', 'DESC']],
+    };
+
+    if (userId) {
+      if (Array.isArray(userId)) {
+        query.where = {
+          author_id: {
+            [Op.or]: userId,
+            [Op.limit]: 1,
+          },
+        };
+      } else {
+        query.where = {
+          author_id: userId,
+        };
+      }
+    }
+    return await this.articleModel.findAll(query);
+  }
+
   async updateArticle({ articleId, title, body, description, price }) {
     return this.articleModel.update(
       {

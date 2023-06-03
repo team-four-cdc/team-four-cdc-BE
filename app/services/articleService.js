@@ -82,13 +82,14 @@ class ArticleService {
     return await this.articleModel.findAll(query);
   }
 
-  async updateArticle({ articleId, title, body, description, price }) {
+  async updateArticle({ articleId, title, body, description, price, total_clicks }) {
     return this.articleModel.update(
       {
         title,
         body,
         description,
         price,
+        total_clicks
       },
       { where: { id: articleId } }
     );
@@ -98,6 +99,10 @@ class ArticleService {
     return this.articleModel.destroy({
       where: { id: articleId },
     });
+  }
+
+  async getDetailArticle(articleId) {
+    return this.articleModel.findByPk(articleId);
   }
 }
 

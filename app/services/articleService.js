@@ -104,6 +104,13 @@ class ArticleService {
   async getDetailArticle(articleId) {
     return this.articleModel.findByPk(articleId);
   }
+
+  async getPopularArticles(limit) {
+    return this.articleModel.findAll({
+      order: [['total_clicks', 'DESC']],
+      limit,
+    });
+  }
 }
 
 module.exports = ArticleService;

@@ -285,8 +285,48 @@ const getDetailArticle = async (req, res) => {
       data: article,
     });
   } catch (error) {
-    console.log(error);
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+      message: 'error occurred',
+      error: error,
+    });
+  }
+};
 
+const getPopularArticles = async (req, res) => {
+  const articleService = new ArticleService({
+    articleModel: db.Article,
+    userModel: db.User,
+  });
+
+  const { limit = 10 } = req.body;
+  if (!Number.isInteger(limit) || limit <= 0) {
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_400_BAD_REQUEST,
+      message: 'Invalid limit value',
+    });
+  }
+
+  try {
+    const article = await articleService.getPopularArticles(limit);
+
+    if (!article || article.length === 0) {
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_204_NO_CONTENT,
+        message: 'No articles found',
+      });
+    }
+
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_200_OK,
+      message: 'Article details retrieved successfully',
+      data: article,
+    });
+  } catch (error) {
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -302,5 +342,6 @@ module.exports = {
   updateArticleHandler,
   deleteArticleHandler,
   getDashboard,
-  getDetailArticle
+  getDetailArticle,
+  getPopularArticles
 };

@@ -6,6 +6,7 @@ const { uploadCover } = require('../middlewares/upload');
 
 router.get('/listing', articleController.getArticleListing);
 router.get('/dashboard', articleController.getDashboard);
+router.get('/popular-article', articleController.getPopularArticles);
 
 router.get('/:articleId', authJWT, articleController.getDetailArticle);
 

@@ -256,8 +256,8 @@ const getDetailArticle = async (req, res) => {
       if (!checkOwnedArticle) {
         return httpRespStatusUtil.sendResponse({
           res,
-          status: status.HTTP_404_NOT_FOUND,
-          message: "This user didn't own this article",
+          status: status.HTTP_403_FORBIDDEN,
+          message: 'Access denied. Please purchase the article',
           data: null
         });
       }

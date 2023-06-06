@@ -1,4 +1,5 @@
 const ArticleService = require('../services/articleService');
+const ArticleReaderService = require('../services/articleReaderService');
 const TransactionService = require('../services/transactionService');
 const { httpRespStatusUtil } = require('../utils');
 const { createArticleSchema } = require('../validator/articleValidator');
@@ -20,22 +21,22 @@ const getDashboard = async (req, res) => {
   });
 
   try {
-    const articles = await articleService.getRandomListing({userId})
+    const articles = await articleService.getRandomListing({ userId })
     const articleIds = []
     articles.forEach(article => {
       articleIds.push(article.id)
     });
-    const transactions = await transactionService.getDashboardTransaction({articleIds})
+    const transactions = await transactionService.getDashboardTransaction({ articleIds })
     transactions.forEach(transaction => {
-     console.log('transaction',transaction)
+      console.log('transaction', transaction)
     });
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_200_OK,
       message: 'success',
       data: {
-        topArticles:articles,
-        transactions:transactions
+        topArticles: articles,
+        transactions: transactions
       },
     });
   } catch (error) {
@@ -224,10 +225,123 @@ const deleteArticleHandler = async (req, res) => {
   }
 };
 
+const getDetailArticle = async (req, res) => {
+  const { articleId } = req.params;
+  const { userId } = req.user;
+
+  const articleService = new ArticleService({
+    articleModel: db.Article,
+    userModel: db.User,
+  });
+
+  const articleReaderService = new ArticleReaderService({
+    articleModel: db.Article,
+    userModel: db.User,
+  });
+
+  try {
+    const article = await articleService.getDetailArticle(articleId);
+
+    if (!article) {
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_404_NOT_FOUND,
+        message: 'Article details with that Id not found',
+        data: article,
+      });
+    }
+
+    if (req.user.role === 'reader') {
+      const checkOwnedArticle = await articleReaderService.checkOwnedArticle(userId, articleId);
+      if (!checkOwnedArticle) {
+        return httpRespStatusUtil.sendResponse({
+          res,
+          status: status.HTTP_403_FORBIDDEN,
+          message: 'Access denied. Please purchase the article',
+          data: null
+        });
+      }
+
+      article.total_clicks = article.dataValues.total_clicks + 1;
+      const increaseTotalClick = await articleService.updateArticle({
+        articleId,
+        total_clicks: article.total_clicks,
+      });
+
+      if (!increaseTotalClick) {
+        return httpRespStatusUtil.sendResponse({
+          res,
+          status: status.HTTP_400_BAD_REQUEST,
+          message: 'Failed to increase article total clicks',
+          data: null
+        });
+      }
+    }
+
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_200_OK,
+      message: 'Article details retrieved successfully',
+      data: article,
+    });
+  } catch (error) {
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+      message: 'error occurred',
+      error: error,
+    });
+  }
+};
+
+const getPopularArticles = async (req, res) => {
+  const articleService = new ArticleService({
+    articleModel: db.Article,
+    userModel: db.User,
+  });
+
+  const { limit = 10 } = req.body;
+  if (!Number.isInteger(limit) || limit <= 0) {
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_400_BAD_REQUEST,
+      message: 'Invalid limit value',
+    });
+  }
+
+  try {
+    const article = await articleService.getPopularArticles(limit);
+
+    if (!article || article.length === 0) {
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_204_NO_CONTENT,
+        message: 'No articles found',
+      });
+    }
+
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_200_OK,
+      message: 'Article details retrieved successfully',
+      data: article,
+    });
+  } catch (error) {
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+      message: 'error occurred',
+      error: error,
+    });
+  }
+};
+
 module.exports = {
   createArticleHandler,
   getArticleListing,
   updateArticleHandler,
   deleteArticleHandler,
-  getDashboard
+  getDashboard,
+  getDetailArticle,
+  getPopularArticles
 };

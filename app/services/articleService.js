@@ -82,13 +82,14 @@ class ArticleService {
     return await this.articleModel.findAll(query);
   }
 
-  async updateArticle({ articleId, title, body, description, price }) {
+  async updateArticle({ articleId, title, body, description, price, total_clicks }) {
     return this.articleModel.update(
       {
         title,
         body,
         description,
         price,
+        total_clicks
       },
       { where: { id: articleId } }
     );
@@ -97,6 +98,17 @@ class ArticleService {
   async deleteArticle({ articleId }) {
     return this.articleModel.destroy({
       where: { id: articleId },
+    });
+  }
+
+  async getDetailArticle(articleId) {
+    return this.articleModel.findByPk(articleId);
+  }
+
+  async getPopularArticles(limit) {
+    return this.articleModel.findAll({
+      order: [['total_clicks', 'DESC']],
+      limit,
     });
   }
 }

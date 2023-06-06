@@ -47,6 +47,9 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         references: { model: 'Categories', key: 'id' },
       },
+      total_clicks: {
+        type: DataTypes.INTEGER,
+      },
     },
     {
       sequelize,

@@ -234,7 +234,8 @@ const getDetailArticle = async (req, res) => {
     userModel: db.User,
   });
 
-  const articleReaderService = new ArticleReaderService({
+  const transactionService = new TransactionService({
+    transactionModel: db.Transaction,
     articleModel: db.Article,
     userModel: db.User,
   });
@@ -252,7 +253,7 @@ const getDetailArticle = async (req, res) => {
     }
 
     if (req.user.role === 'reader') {
-      const checkOwnedArticle = await articleReaderService.checkOwnedArticle(userId, articleId);
+      const checkOwnedArticle = await transactionService.checkOwnedArticle(userId, articleId);
       if (!checkOwnedArticle) {
         return httpRespStatusUtil.sendResponse({
           res,

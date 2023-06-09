@@ -51,7 +51,6 @@ const createTransactionHandler = async (req, res) => {
       data: payment,
     });
   } catch (error) {
-    console.log(error);
 
     if (error.name === 'SequelizeForeignKeyConstraintError') {
       return httpRespStatusUtil.sendResponse({

@@ -1,5 +1,4 @@
 const ArticleService = require('../services/articleService');
-const ArticleReaderService = require('../services/articleReaderService');
 const TransactionService = require('../services/transactionService');
 const { httpRespStatusUtil } = require('../utils');
 const { createArticleSchema } = require('../validator/articleValidator');

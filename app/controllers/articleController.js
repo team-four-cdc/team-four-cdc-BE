@@ -276,6 +276,16 @@ const getDetailArticle = async (req, res) => {
           data: null
         });
       }
+    } else {
+      const checkCreatorArticle = await articleService.checkCreatedArticle(req.user.userId, articleId);
+      if (!checkCreatorArticle) {
+        return httpRespStatusUtil.sendResponse({
+          res,
+          status: status.HTTP_403_FORBIDDEN,
+          message: 'Access denied. You are not the creator of this article',
+          data: null
+        });
+      }
     }
 
     return httpRespStatusUtil.sendResponse({

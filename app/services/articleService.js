@@ -111,6 +111,12 @@ class ArticleService {
       limit,
     });
   }
+
+  async checkCreatedArticle(userId, articleId) {
+    return this.articleModel.findOne(
+      { where: { author_id: userId, id: articleId } }
+    );
+  }
 }
 
 module.exports = ArticleService;

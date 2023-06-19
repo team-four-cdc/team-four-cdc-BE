@@ -58,7 +58,7 @@ class TransactionService {
     query.where = {
       user_id: userId
     };
-    return await this.transactionModel.findAll(query);
+    return this.transactionModel.findAll(query);
   }
 
   async checkOwnedArticle(userId, articleId) {

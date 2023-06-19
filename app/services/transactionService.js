@@ -43,6 +43,29 @@ class TransactionService {
     };
     return this.transactionModel.findAll(query);
   }
+
+  async getlistOwnedArticle({
+    userId
+  }) {
+    const query = {
+      include: {
+        model: this.articleModel,
+        attributes: {},
+        as: 'Article',
+      },
+      order: [['createdAt', 'DESC']],
+    };
+    query.where = {
+      user_id: userId
+    };
+    return await this.transactionModel.findAll(query);
+  }
+
+  async checkOwnedArticle(userId, articleId) {
+    return this.transactionModel.findOne(
+      { where: { user_id: userId, article_id: articleId } }
+    );
+  }
 }
 
 module.exports = TransactionService;

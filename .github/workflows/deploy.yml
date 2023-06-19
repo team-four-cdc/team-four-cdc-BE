@@ -1,11 +1,9 @@
 name: Deploy Backend
 
 on:
-  workflow_run:
-    workflows: ['Build Backend']
-    branches: ['develop']
-    types:
-      - completed
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   deploy:

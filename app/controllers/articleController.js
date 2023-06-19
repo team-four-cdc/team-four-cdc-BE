@@ -1,5 +1,4 @@
 const ArticleService = require('../services/articleService');
-const ArticleReaderService = require('../services/articleReaderService');
 const TransactionService = require('../services/transactionService');
 const { httpRespStatusUtil } = require('../utils');
 const { createArticleSchema } = require('../validator/articleValidator');
@@ -231,7 +230,8 @@ const getDetailArticle = async (req, res) => {
     userModel: db.User,
   });
 
-  const articleReaderService = new ArticleReaderService({
+  const transactionService = new TransactionService({
+    transactionModel: db.Transaction,
     articleModel: db.Article,
     userModel: db.User,
   });
@@ -249,7 +249,7 @@ const getDetailArticle = async (req, res) => {
     }
 
     if (req.user.role === 'reader') {
-      const checkOwnedArticle = await articleReaderService.checkOwnedArticle(userId, articleId);
+      const checkOwnedArticle = await transactionService.checkOwnedArticle(userId, articleId);
       if (!checkOwnedArticle) {
         return httpRespStatusUtil.sendResponse({
           res,
@@ -270,6 +270,16 @@ const getDetailArticle = async (req, res) => {
           res,
           status: status.HTTP_400_BAD_REQUEST,
           message: 'Failed to increase article total clicks',
+          data: null
+        });
+      }
+    } else {
+      const checkCreatorArticle = await articleService.checkCreatedArticle(req.user.userId, articleId);
+      if (!checkCreatorArticle) {
+        return httpRespStatusUtil.sendResponse({
+          res,
+          status: status.HTTP_403_FORBIDDEN,
+          message: 'Access denied. You are not the creator of this article',
           data: null
         });
       }

@@ -3,28 +3,24 @@ const { httpRespStatusUtil } = require('../utils');
 const { createCategorySchema } = require('../validator/categoryValidator');
 const status = require('../constants/status');
 
-const getCategoryListing = async (req, res) => {
+const getCategoryListing = async (nil, res) => {
   const categoryService = new CategoryService();
   try {
-    categoryService
-      .getListing()
-      .then((category) => {
-        return httpRespStatusUtil.sendResponse({
-          res,
-          status: status.HTTP_200_OK,
-          message: 'success',
-          data: category,
-        });
-      })
-      .catch((error) => {
-        return httpRespStatusUtil.sendResponse({
-          res,
-          status: status.HTTP_404_NOT_FOUND,
-          message: 'failed',
-          error,
-        });
+    const category = await categoryService.getListing();
+    if (category) {
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_200_OK,
+        message: 'success',
+        data: category,
       });
-  } catch (error) {
+    }
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_404_NOT_FOUND,
+      message: 'failed',
+    });
+  } catch (errorCategoryListing) {
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -36,7 +32,7 @@ const getCategoryListing = async (req, res) => {
 const createCategoryHandler = async (req, res) => {
   const { name } = req.body;
   const { error } = createCategorySchema.validate({
-   name
+    name,
   });
 
   if (error) {
@@ -61,27 +57,24 @@ const createCategoryHandler = async (req, res) => {
       message: 'Category created',
       data: category,
     });
-  } catch (error) {
-    console.log(error);
-
+  } catch (errorCreateCategory) {
     if (error.name === 'SequelizeForeignKeyConstraintError') {
       return httpRespStatusUtil.sendResponse({
         res,
         status: status.HTTP_400_BAD_REQUEST,
         message: 'Foreign key is not exist',
       });
-    } else {
-      return httpRespStatusUtil.sendResponse({
-        res,
-        status: status.HTTP_500_INTERNAL_SERVER_ERROR,
-        message: 'error occurred',
-        error: error,
-      });
     }
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+      message: 'error occurred',
+      error,
+    });
   }
 };
 
-module.exports = { 
+module.exports = {
   getCategoryListing,
-  createCategoryHandler
+  createCategoryHandler,
 };

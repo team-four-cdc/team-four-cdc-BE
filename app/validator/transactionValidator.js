@@ -10,5 +10,5 @@ const createTransactionSchema = Joi.object({
 });
 
 module.exports = {
-    createTransactionSchema,
+  createTransactionSchema,
 };

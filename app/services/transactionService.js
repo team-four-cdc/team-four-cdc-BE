@@ -1,4 +1,3 @@
-const { Op } = require('sequelize');
 const sequelize = require('sequelize');
 class TransactionService {
   constructor({ transactionModel, articleModel, userModel }) {
@@ -8,44 +7,41 @@ class TransactionService {
   }
 
   async createTransaction({
-    account_number,
-    account_name,
-    bank_name,
-    article_id,
+    accountNumber,
+    accountName,
+    bankName,
+    articleId,
     status,
-    user_id
+    userId,
   }) {
     return this.transactionModel.create({
-      account_number,
-      account_name,
-      bank_name,
-      article_id,
+      accountNumber,
+      accountName,
+      bankName,
+      articleId,
       status,
-      user_id
+      userId,
     });
   }
 
-  async getDashboardTransaction({
-    articleIds
-  }) {
+  async getDashboardTransaction({ articleIds }) {
     const query = {
       include: {
         model: this.articleModel,
         attributes: {},
         as: 'Article',
       },
-      attributes:[
+      attributes: [
         'Article.id',
-        [sequelize.fn("COUNT", sequelize.col("Article.id")), "sales"],
-        [sequelize.fn("SUM", sequelize.col("Article.price")), "value"],
+        [sequelize.fn('COUNT', sequelize.col('Article.id')), 'sales'],
+        [sequelize.fn('SUM', sequelize.col('Article.price')), 'value'],
       ],
-      group:['Article.id'],
-      
+      group: ['Article.id'],
     };
     query.where = {
-      article_id: articleIds
+      article_id: articleIds,
     };
-    return await this.transactionModel.findAll(query);
+    return this.transactionModel.findAll(query);
   }
 }
 

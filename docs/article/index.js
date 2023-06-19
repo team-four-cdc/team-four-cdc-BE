@@ -50,7 +50,10 @@ module.exports = {
                 type: 'object',
                 properties: {
                   status: { type: 'integer', example: 200 },
-                  message: { type: 'string', example: 'Article details retrieved successfully' },
+                  message: {
+                    type: 'string',
+                    example: 'Article details retrieved successfully',
+                  },
                   data: {
                     type: 'object',
                     properties: {
@@ -118,7 +121,10 @@ module.exports = {
                 type: 'object',
                 properties: {
                   status: { type: 'integer', example: 200 },
-                  message: { type: 'string', example: 'Article details retrieved successfully' },
+                  message: {
+                    type: 'string',
+                    example: 'Article details retrieved successfully',
+                  },
                   data: {
                     type: 'array',
                     items: {

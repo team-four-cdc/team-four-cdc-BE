@@ -7,10 +7,10 @@ class UserService {
   async createUser({
     email,
     password,
-    full_name,
+    fullName,
     role,
     author,
-    photo_url,
+    photoUrl,
     token,
   }) {
     const user = await this.findDuplicateUser({ email, role });
@@ -24,17 +24,17 @@ class UserService {
     return this.userModel.create({
       email,
       password: hashedPassword,
-      full_name,
+      fullName,
       role,
       author,
-      photo_url,
+      photoUrl,
       token,
       is_verified: false,
     });
   }
 
   async findUserByToken({ token }) {
-    return await this.userModel.findOne({
+    return this.userModel.findOne({
       where: { token, is_verified: false },
     });
   }
@@ -51,23 +51,24 @@ class UserService {
     });
   }
 
-  async verifyUser(user) {
+  static async verifyUser(user) {
     await user.update({ is_verified: true });
-    return await user.save();
+    return user.save();
   }
 
-  async getUser({ user_id }) {
-    return this.userModel.findByPk(user_id);
+  async getUser({ userId }) {
+    return this.userModel.findByPk(userId);
   }
 
   async findUserEmailByRole({ email, role }) {
-    return await this.userModel.findOne({
+    return this.userModel.findOne({
+      // eslint-disable-next-line no-console
       logging: console.log,
       where: { email, role, is_verified: true },
     });
   }
 
-  async checkValidRole(role) {
+  static async checkValidRole(role) {
     const roleList = ['reader', 'creator'];
     if (!roleList.includes(role)) {
       return false;

@@ -5,7 +5,7 @@ const { authJWT } = require('../middlewares/authJWT');
 
 router.post(
   '/create',
-  // authJWT,
+  authJWT,
   transactionController.createTransactionHandler
 );
 

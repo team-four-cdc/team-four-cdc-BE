@@ -1,12 +1,12 @@
 function networkService() {
   function getPingHandler() {
     return {
-      message: 'ok'
+      message: 'ok',
     };
   }
 
   return {
-    getPingHandler
+    getPingHandler,
   };
 }
 

@@ -50,7 +50,7 @@ class ArticleService {
         };
       }
     }
-    return await this.articleModel.findAll(query);
+    return this.articleModel.findAll(query);
   }
 
   async getRandomListing({ userId }) {
@@ -79,17 +79,24 @@ class ArticleService {
         };
       }
     }
-    return await this.articleModel.findAll(query);
+    return this.articleModel.findAll(query);
   }
 
-  async updateArticle({ articleId, title, body, description, price, total_clicks }) {
+  async updateArticle({
+    articleId,
+    title,
+    body,
+    description,
+    price,
+    totalClicks,
+  }) {
     return this.articleModel.update(
       {
         title,
         body,
         description,
         price,
-        total_clicks
+        totalClicks,
       },
       { where: { id: articleId } }
     );

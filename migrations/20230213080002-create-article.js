@@ -7,16 +7,16 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       title: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       body: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       publish_date: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       author_id: {
         allowNull: false,
@@ -24,16 +24,16 @@ module.exports = {
         references: { model: 'Users', key: 'id' },
       },
       photo_article: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       price: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       pdf_url: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       description: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       category_id: {
         allowNull: false,
@@ -42,15 +42,15 @@ module.exports = {
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Articles');
-  }
+  },
 };

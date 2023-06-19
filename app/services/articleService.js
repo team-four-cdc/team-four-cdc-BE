@@ -112,10 +112,19 @@ class ArticleService {
     });
   }
 
-  async checkCreatedArticle(userId, articleId) {
+  async getCreatedArticle(userId, articleId) {
     return this.articleModel.findOne(
       { where: { author_id: userId, id: articleId } }
     );
+  }
+
+  async getCreatedArticleList(userId, limit, offset) {
+    return this.articleModel.findAll({
+      where: { author_id: userId },
+      order: [['createdAt', 'DESC']],
+      limit,
+      offset
+    });
   }
 }
 

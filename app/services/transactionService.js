@@ -34,13 +34,13 @@ class TransactionService {
         attributes: {},
         as: 'Article',
       },
-      attributes:[
+      attributes: [
         'Article.id',
         [sequelize.fn("COUNT", sequelize.col("Article.id")), "sales"],
         [sequelize.fn("SUM", sequelize.col("Article.price")), "value"],
       ],
-      group:['Article.id'],
-      
+      group: ['Article.id'],
+
     };
     query.where = {
       article_id: articleIds
@@ -65,9 +65,20 @@ class TransactionService {
     return await this.transactionModel.findAll(query);
   }
 
-  async checkOwnedArticle(userId, articleId) {
+  async getOwnedArticle(userId, articleId) {
     return this.transactionModel.findOne(
       { where: { user_id: userId, article_id: articleId } }
+    );
+  }
+
+  async getOwnedArticleList(userId, limit, offset) {
+    return this.transactionModel.findAll(
+      {
+        where: { user_id: userId },
+        order: [['createdAt', 'DESC']],
+        limit,
+        offset
+      }
     );
   }
 }

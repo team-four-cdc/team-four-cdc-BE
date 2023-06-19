@@ -49,40 +49,72 @@ const getDashboard = async (req, res) => {
 };
 
 const getArticleListing = async (req, res) => {
-  const { userId } = req.query;
+  const { userId } = req.user;
 
   const articleService = new ArticleService({
     articleModel: db.Article,
     userModel: db.User,
   });
 
+  const transactionService = new TransactionService({
+    transactionModel: db.Transaction,
+    articleModel: db.Article,
+    userModel: db.User,
+  });
+
   try {
-    articleService
-      .getListing({ userId })
-      .then((article) => {
+    let limit = 10;
+    let offset = 0;
+    if (req.query.limit && req.query.page) {
+      let page = parseInt(String(req.query.page));
+      if (page !== 0) {
+        page -= 1;
+      }
+      limit = parseInt(String(req.query.limit));
+      offset += page * limit;
+    }
+
+    if (req.user.role === 'reader') {
+      const ownedArticleList = await transactionService.getOwnedArticleList(userId, limit, offset);
+      if (ownedArticleList.length === 0) {
         return httpRespStatusUtil.sendResponse({
           res,
-          status: status.HTTP_200_OK,
-          message: 'success',
-          data: article,
+          status: status.HTTP_204_NO_CONTENT,
+          message: 'Found no article. Please purchase an article',
+          data: null
         });
-      })
-      .catch((error) => {
-        return httpRespStatusUtil.sendResponse({
-          res,
-          status: status.HTTP_404_NOT_FOUND,
-          message: 'failed',
-          error,
-        });
+      }
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_200_OK,
+        message: 'List of articles fetched successfully.',
+        data: ownedArticleList,
       });
+    }
+    const createdArticleList = await articleService.getCreatedArticleList(userId, limit, offset);
+    if (!createdArticleList) {
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_204_NO_CONTENT,
+        message: 'Found no article. Please create an article',
+        data: null
+      });
+    }
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_200_OK,
+      message: 'List of articles fetched successfully.',
+      data: createdArticleList,
+    });
   } catch (error) {
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,
       message: 'error occurred',
+      error,
     });
   }
-}
+};
 
 const createArticleHandler = async (req, res) => {
   const { filename: photoArticle } = req.file;
@@ -252,8 +284,8 @@ const getDetailArticle = async (req, res) => {
     }
 
     if (req.user.role === 'reader') {
-      const checkOwnedArticle = await transactionService.checkOwnedArticle(userId, articleId);
-      if (!checkOwnedArticle) {
+      const getOwnedArticle = await transactionService.getOwnedArticle(userId, articleId);
+      if (!getOwnedArticle) {
         return httpRespStatusUtil.sendResponse({
           res,
           status: status.HTTP_403_FORBIDDEN,
@@ -277,7 +309,7 @@ const getDetailArticle = async (req, res) => {
         });
       }
     } else {
-      const checkCreatorArticle = await articleService.checkCreatedArticle(req.user.userId, articleId);
+      const checkCreatorArticle = await articleService.getCreatedArticle(userId, articleId);
       if (!checkCreatorArticle) {
         return httpRespStatusUtil.sendResponse({
           res,

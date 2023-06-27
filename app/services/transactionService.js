@@ -7,20 +7,31 @@ class TransactionService {
   }
 
   async createTransaction({
-    accountNumber,
-    accountName,
-    bankName,
-    articleId,
+    /* eslint-disable camelcase */
+    account_number,
+    /* eslint-disable camelcase */
+    account_name,
+    /* eslint-disable camelcase */
+    bank_name,
+    /* eslint-disable camelcase */
+    article_id,
     status,
-    userId,
+    /* eslint-disable camelcase */
+    user_id,
   }) {
     return this.transactionModel.create({
-      accountNumber,
-      accountName,
-      bankName,
-      articleId,
+      /* eslint-disable camelcase */
+      account_number,
+      /* eslint-disable camelcase */
+      account_name,
+      /* eslint-disable camelcase */
+      bank_name,
+      /* eslint-disable camelcase */
+      article_id,
+      /* eslint-disable camelcase */
       status,
-      userId,
+      /* eslint-disable camelcase */
+      user_id,
     });
   }
 

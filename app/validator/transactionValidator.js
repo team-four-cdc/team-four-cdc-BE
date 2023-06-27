@@ -21,12 +21,11 @@ const createSnapTransactionSchema = Joi.object({
     grossAmount: Joi.number().required(),
   }),
   creditCard: Joi.object({
-    secure:Joi.bool().required()
+    secure: Joi.bool().required()
   })
 });
 
-
 module.exports = {
-    createTransactionSchema,
-    createSnapTransactionSchema,
+  createTransactionSchema,
+  createSnapTransactionSchema,
 };

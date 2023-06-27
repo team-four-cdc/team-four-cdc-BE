@@ -15,7 +15,7 @@ function networkController() {
   }
 
   return {
-    getPing
+    getPing,
   };
 }
 

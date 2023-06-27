@@ -1,6 +1,4 @@
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class ArticleReader extends Model {
     /**
@@ -15,25 +13,28 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(models.Transaction, { foreignKey: 'transaction_id' });
     }
   }
-  ArticleReader.init({
-    user_id: {
-      allowNull: false,
-      type: DataTypes.INTEGER,
-      references: { model: 'Users', key: 'id' },
+  ArticleReader.init(
+    {
+      user_id: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+        references: { model: 'Users', key: 'id' },
+      },
+      article_id: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+        references: { model: 'Articles', key: 'id' },
+      },
+      transaction_id: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+        references: { model: 'Transactions', key: 'id' },
+      },
     },
-    article_id: {
-      allowNull: false,
-      type: DataTypes.INTEGER,
-      references: { model: 'Articles', key: 'id' },
-    },
-    transaction_id: {
-      allowNull: false,
-      type: DataTypes.INTEGER,
-      references: { model: 'Transactions', key: 'id' },
-    },
-  }, {
-    sequelize,
-    modelName: 'ArticleReader',
-  });
+    {
+      sequelize,
+      modelName: 'ArticleReader',
+    }
+  );
   return ArticleReader;
 };

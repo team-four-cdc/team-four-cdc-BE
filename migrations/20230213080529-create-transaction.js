@@ -7,41 +7,41 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       account_number: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       account_name: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       bank_name: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       article_id: {
-      allowNull: false,
-      type: Sequelize.INTEGER,
-      references: { model: 'Articles', key: 'id' },
-    },
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: { model: 'Articles', key: 'id' },
+      },
       status: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       user_id: {
-      allowNull: false,
-      type: Sequelize.INTEGER,
-      references: { model: 'Users', key: 'id' },
-    },
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: { model: 'Users', key: 'id' },
+      },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Transactions');
-  }
+  },
 };

@@ -10,11 +10,15 @@ const db = require('../models');
 const status = require('../constants/status');
 
 const createUserController = async (req, res) => {
-  const { email, password, full_name, role, author } = req.body;
+  const {
+    /* eslint-disable camelcase */
+    email, password, full_name, role, author
+  } = req.body;
 
   const validationResult = registerUserSchema.validate({
     email,
     password,
+    /* eslint-disable camelcase */
     full_name,
     role,
     author,
@@ -71,7 +75,7 @@ const createUserController = async (req, res) => {
       status: status.HTTP_200_OK,
       message: `User ${value.email} created`,
     });
-  } catch (error) {
+  } catch (errorCreateUser) {
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -87,14 +91,14 @@ const verifyUserController = async (req, res) => {
     token,
   });
 
-  const { value, error } = validationResult;
+  const { value, errorVerifyUser } = validationResult;
 
-  if (error) {
+  if (errorVerifyUser) {
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_400_BAD_REQUEST,
       message: 'Validation Error',
-      error,
+      errorVerifyUser,
     });
   }
 
@@ -111,13 +115,12 @@ const verifyUserController = async (req, res) => {
         status: status.HTTP_200_OK,
         message: 'User verified',
       });
-    } else {
-      return httpRespStatusUtil.sendResponse({
-        res,
-        status: status.HTTP_404_NOT_FOUND,
-        message: 'User not found',
-      });
     }
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_404_NOT_FOUND,
+      message: 'User not found',
+    });
   } catch (error) {
     return httpRespStatusUtil.sendResponse({
       res,

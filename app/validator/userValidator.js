@@ -1,8 +1,9 @@
 const Joi = require('joi');
+const pattern = '^[a-zA-Z0-9]{3,30}$';
 
 const passwordSchema = Joi.string()
   .min(8)
-  .pattern(new RegExp('^[a-zA-Z0-9]{3,30}$'))
+  .pattern(new RegExp(pattern))
   .required();
 
 const registerUserSchema = Joi.object({

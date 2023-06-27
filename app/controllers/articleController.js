@@ -20,26 +20,31 @@ const getDashboard = async (req, res) => {
   });
 
   try {
-    const articles = await articleService.getRandomListing({ userId })
-    const articleIds = []
-    articles.forEach(article => {
-      articleIds.push(article.id)
-    });
-    const transactions = await transactionService.getDashboardTransaction({ articleIds })
-    transactions.forEach(transaction => {
-      console.log('transaction', transaction)
-    });
+    const articles = await articleService.getRandomListing({ userId });
+    const articleIds = [];
+    if (articles) {
+      articles.forEach((article) => {
+        articleIds.push(article.id);
+      });
+    }
+    const transactions = await transactionService.getDashboardTransaction({ articleIds });
+    if (transactions) {
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_200_OK,
+        message: 'success',
+        data: {
+          topArticles: articles,
+          transactions
+        },
+      });
+    }
     return httpRespStatusUtil.sendResponse({
       res,
-      status: status.HTTP_200_OK,
-      message: 'success',
-      data: {
-        topArticles: articles,
-        transactions: transactions
-      },
+      status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+      message: 'transaction not found',
     });
   } catch (error) {
-    console.log("ERROR", error)
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -57,24 +62,20 @@ const getArticleListing = async (req, res) => {
   });
 
   try {
-    articleService
-      .getListing({ userId })
-      .then((article) => {
-        return httpRespStatusUtil.sendResponse({
-          res,
-          status: status.HTTP_200_OK,
-          message: 'success',
-          data: article,
-        });
-      })
-      .catch((error) => {
-        return httpRespStatusUtil.sendResponse({
-          res,
-          status: status.HTTP_404_NOT_FOUND,
-          message: 'failed',
-          error,
-        });
+    const article = await articleService.getListing({ userId });
+    if (article) {
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_200_OK,
+        message: 'success',
+        data: article,
       });
+    }
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_404_NOT_FOUND,
+      message: 'failed',
+    });
   } catch (error) {
     return httpRespStatusUtil.sendResponse({
       res,
@@ -82,11 +83,13 @@ const getArticleListing = async (req, res) => {
       message: 'error occurred',
     });
   }
-}
+};
 
 const createArticleHandler = async (req, res) => {
   const { filename: photoArticle } = req.file;
-  const { title, body, description, price, categoryId, authorId } = req.body;
+  const {
+    title, body, description, price, categoryId, authorId
+  } = req.body;
 
   const { error } = createArticleSchema.validate({
     photoArticle,
@@ -129,29 +132,28 @@ const createArticleHandler = async (req, res) => {
       message: 'Article created',
       data: article,
     });
-  } catch (error) {
-    console.log(error);
-
-    if (error.name === 'SequelizeForeignKeyConstraintError') {
+  } catch (errorCreateArticle) {
+    if (errorCreateArticle.name === 'SequelizeForeignKeyConstraintError') {
       return httpRespStatusUtil.sendResponse({
         res,
         status: status.HTTP_400_BAD_REQUEST,
         message: 'Foreign key is not exist',
       });
-    } else {
-      return httpRespStatusUtil.sendResponse({
-        res,
-        status: status.HTTP_500_INTERNAL_SERVER_ERROR,
-        message: 'error occurred',
-        error: error,
-      });
     }
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+      message: 'error occurred',
+      errorCreateArticle,
+    });
   }
 };
 
 const updateArticleHandler = async (req, res) => {
   const { articleId } = req.params;
-  const { title, body, description, price } = req.body;
+  const {
+    title, body, description, price
+  } = req.body;
 
   const articleService = new ArticleService({
     articleModel: db.Article,
@@ -174,22 +176,19 @@ const updateArticleHandler = async (req, res) => {
       data: article,
     });
   } catch (error) {
-    console.log(error);
-
     if (error.name === 'SequelizeForeignKeyConstraintError') {
       return httpRespStatusUtil.sendResponse({
         res,
         status: status.HTTP_400_BAD_REQUEST,
         message: 'Foreign key is not exist',
       });
-    } else {
-      return httpRespStatusUtil.sendResponse({
-        res,
-        status: status.HTTP_500_INTERNAL_SERVER_ERROR,
-        message: 'error occurred',
-        error: error,
-      });
     }
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+      message: 'error occurred',
+      error,
+    });
   }
 };
 
@@ -213,13 +212,11 @@ const deleteArticleHandler = async (req, res) => {
       data: article,
     });
   } catch (error) {
-    console.log(error);
-
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,
       message: 'error occurred',
-      error: error,
+      error,
     });
   }
 };
@@ -299,7 +296,7 @@ const getDetailArticle = async (req, res) => {
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,
       message: 'error occurred',
-      error: error,
+      error,
     });
   }
 };
@@ -341,7 +338,7 @@ const getPopularArticles = async (req, res) => {
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,
       message: 'error occurred',
-      error: error,
+      error,
     });
   }
 };

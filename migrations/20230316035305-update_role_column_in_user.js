@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -10,11 +10,11 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
 
-    await queryInterface.changeColumn("Users", "role", {
+    await queryInterface.changeColumn('Users', 'role', {
       type: Sequelize.STRING,
     });
 
-    await queryInterface.changeColumn("Users", "is_verified", {
+    await queryInterface.changeColumn('Users', 'is_verified', {
       type: Sequelize.DataTypes.BOOLEAN,
       defaultValue: false,
       allowNull: false,

@@ -6,9 +6,9 @@ class ArticleReaderService {
   }
 
   async checkOwnedArticle(userId, articleId) {
-    return this.articleReaderModel.findOne(
-      { where: { user_id: userId, article_id: articleId } }
-    );
+    return this.articleReaderModel.findOne({
+      where: { user_id: userId, article_id: articleId },
+    });
   }
 }
 

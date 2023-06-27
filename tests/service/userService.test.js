@@ -1,8 +1,6 @@
-import {
-  expect, describe, it, afterAll
-} from '@jest/globals';
-const db = require('../app/models');
-const UserService = require('../app/services/userService');
+// import { expect, describe, it, afterAll } from '@jest/globals';
+const db = require('../../app/models');
+const UserService = require('../../app/services/userService');
 
 describe('User Services', () => {
   const userServices = new UserService({ userModel: db.User });
@@ -18,7 +16,6 @@ describe('User Services', () => {
 
   const expectedUser = {
     email: 'test_data@gmail.com',
-    full_name: 'aditya hasry',
     role: 'reader',
     author: 'adit',
   };
@@ -77,9 +74,42 @@ describe('User Services', () => {
 
   describe('Verify user', () => {
     it('Should change is_verified value to true', async () => {
-      const result = await userServices.verifyUser(userInstance);
+      const result = await UserService.verifyUser(userInstance);
 
       expect(result.dataValues.is_verified).toBe(true);
+    });
+  });
+
+  describe('Get user By Id', () => {
+    it("Should return null if user doesn't exists", async () => {
+      const result = await userServices.getUser(0);
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('Find User By Email And Role', () => {
+    it('Should return the user if exists', async () => {
+      const result = await userServices.findUserEmailByRole({
+        email: testData.email,
+        role: testData.role,
+      });
+
+      expect(result.dataValues).toMatchObject(expectedUser);
+    });
+  });
+
+  describe('Check Valid Role', () => {
+    it("Should return false if role is not reader or creator", async () => {
+      const result = await UserService.checkValidRole('mamaragan');
+
+      expect(result).toEqual(false);
+    });
+
+    it("Should return true if role is not reader or creator", async () => {
+      const result = await UserService.checkValidRole('reader');
+
+      expect(result).toEqual(true);
     });
   });
 

@@ -41,6 +41,7 @@ const verifyAuthHandler = async (req, res, next) => {
 
     if (user) {
       const userId = user.id;
+      const fullName = user.full_name;
       const isValid = await verify(user.password, password);
       if (password && isValid) {
         const token = await tokenService.signToken(
@@ -54,22 +55,23 @@ const verifyAuthHandler = async (req, res, next) => {
           message: 'Users authenticated',
           data: {
             token,
+            fullName
           },
         });
-      } else {
-        return httpRespStatusUtil.sendResponse({
-          res,
-          status: status.HTTP_401_UNAUTHORIZED,
-          message: 'Invalid credentials',
-        });
       }
-    } else {
+
       return httpRespStatusUtil.sendResponse({
         res,
-        status: status.HTTP_400_BAD_REQUEST,
-        message: 'Invalid request, user not valid',
+        status: status.HTTP_401_UNAUTHORIZED,
+        message: 'Invalid credentials',
       });
     }
+
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_400_BAD_REQUEST,
+      message: 'Invalid request, user not valid',
+    });
   } catch (error) {
     return httpRespStatusUtil.sendResponse({
       res,

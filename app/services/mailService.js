@@ -7,11 +7,16 @@ class MailService {
   static async sendVerificationEmail({ token, to }) {
     const { from, ...config } = smtpConfig;
     const transporter = nodemailer.createTransport(config);
+    const url = `${process.env.FE_HOST}/verifikasi/${token}`
     const info = await transporter.sendMail({
       from: `${from.name} <${from.email}>`,
       to,
       subject: 'Account Verification',
-      text: `Verify using this link ${process.env.FE_HOST}/verifikasi/${token}`,
+      text: `Verify using this link`,
+      html: emailHelper.getEmailVerificationPassword({
+        username: to,
+        link: url,
+      }),
     });
 
     // eslint-disable-next-line no-console

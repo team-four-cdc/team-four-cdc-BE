@@ -113,8 +113,7 @@ const getEmailVerificationPassword = ({ username, link }) =>
                   <tr>
                     <td style="font-family:sans-serif;font-size:14px;vertical-align:top">
                       <p style="font-family:sans-serif;font-size:18px;font-weight:400;margin:0;margin-bottom:15px">Hallo ${username},</p>
-                      <p style="font-family:sans-serif;font-size:14px;font-weight:400;margin:0;margin-bottom:15px">Berikut Link Verifikasi Account BacaAku.</p>
-                      <p style="font-family:sans-serif;font-size:14px;font-weight:400;margin:0;margin-bottom:15px">Gunakan link dibawah ini untuk melanjutkan</p>
+                      <p style="font-family:sans-serif;font-size:14px;font-weight:400;margin:0;margin-bottom:15px">Silahkan klik tombol dibawah ini untuk memverifikasi akun anda</p>
                       <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary" style="border-collapse:separate;mso-table-lspace:0;mso-table-rspace:0;width:100%;box-sizing:border-box">
                         <tbody>
                           <tr>
@@ -123,7 +122,7 @@ const getEmailVerificationPassword = ({ username, link }) =>
                                 <tbody>
                                   <tr>
                                     <td colspan="6" style="font-family:sans-serif;font-size:14px;vertical-align:top;background-color:#3498db;border-radius:5px;text-align:center">
-                                      <a href="${link}" target="_blank" style="display:inline-block;color:#fff;background-color:#3498db;border:solid 1px #3498db;border-radius:5px;box-sizing:border-box;cursor:pointer;text-decoration:none;font-size:14px;font-weight:700;margin:0;padding:12px 25px;text-transform:capitalize;border-color:#3498db">Verifikasi</a>
+                                      <a href="${link}" target="_blank" style="display:inline-block;color:#fff;background-color:#3498db;border:solid 1px #3498db;border-radius:5px;box-sizing:border-box;cursor:pointer;text-decoration:none;font-size:14px;font-weight:700;margin:0;padding:12px 25px;text-transform:capitalize;border-color:#3498db">Verifikasi Akun</a>
                                     </td>
                                   </tr>
                                 </tbody>

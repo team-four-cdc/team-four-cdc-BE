@@ -1,13 +1,14 @@
 const TransactionService = require('../services/transactionService');
 const { httpRespStatusUtil } = require('../utils');
-const { createTransactionSchema } = require('../validator/transactionValidator');
+const {
+  createTransactionSchema,
+} = require('../validator/transactionValidator');
 const db = require('../models');
-const status = require('../constants/status');
-
 
 const createTransactionHandler = async (req, res) => {
-
-  const { accountNumber,accountName,bankName,articleId,status,userId } = req.body;
+  const {
+    accountNumber, accountName, bankName, articleId, status, userId
+  } = req.body;
 
   const { error } = createTransactionSchema.validate({
     accountNumber,
@@ -15,9 +16,8 @@ const createTransactionHandler = async (req, res) => {
     bankName,
     articleId,
     status,
-    userId
+    userId,
   });
-
 
   if (error) {
     return httpRespStatusUtil.sendResponse({
@@ -36,12 +36,12 @@ const createTransactionHandler = async (req, res) => {
 
   try {
     const payment = await transactionService.createTransaction({
-      account_number : accountNumber,
-      account_name : accountName,
+      account_number: accountNumber,
+      account_name: accountName,
       bank_name: bankName,
       article_id: articleId,
-      status: status,
-      user_id: userId
+      status,
+      user_id: userId,
     });
 
     return httpRespStatusUtil.sendResponse({
@@ -50,25 +50,22 @@ const createTransactionHandler = async (req, res) => {
       message: 'Payment created',
       data: payment,
     });
-  } catch (error) {
-
+  } catch (errorCreateTransaction) {
     if (error.name === 'SequelizeForeignKeyConstraintError') {
       return httpRespStatusUtil.sendResponse({
         res,
         status: status.HTTP_400_BAD_REQUEST,
         message: 'Foreign key is not exist',
       });
-    } else {
-      return httpRespStatusUtil.sendResponse({
-        res,
-        status: status.HTTP_500_INTERNAL_SERVER_ERROR,
-        message: 'error occurred',
-        error: error,
-      });
     }
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+      message: 'error occurred',
+      error,
+    });
   }
 };
-
 
 module.exports = {
   createTransactionHandler,

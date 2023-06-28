@@ -8,7 +8,7 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => {
     cb(
       null,
-      file.fieldname + '-' + Date.now() + file.originalname.match(/\..*$/)[0]
+      `${file.fieldname}-${Date.now()}${file.originalname.match(/\..*$/)[0]}`
     );
   },
 });
@@ -19,10 +19,11 @@ const multerFilter = (req, file, cb) => {
   }
 
   cb(null, true);
+  return false;
 };
 
 const upload = multer({
-  storage: storage,
+  storage,
   fileFilter: multerFilter,
   limits: { fileSize: 1024 * 1024 * 5 },
 });

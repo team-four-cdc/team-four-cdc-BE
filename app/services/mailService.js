@@ -4,34 +4,39 @@ const nodemailer = require('nodemailer');
 const emailHelper = require('../helpers/emailHelper');
 
 class MailService {
-  constructor() {}
-
-  async sendVerificationEmail({ token, to }) {
+  static async sendVerificationEmail({ token, to }) {
     const { from, ...config } = smtpConfig;
     const transporter = nodemailer.createTransport(config);
+    const url = `${process.env.FE_HOST}/verifikasi/${token}`
     const info = await transporter.sendMail({
       from: `${from.name} <${from.email}>`,
       to,
       subject: 'Account Verification',
-      text: `Verify using this link ${process.env.FE_HOST}/verifikasi/${token}`,
+      text: `Verify using this link`,
+      html: emailHelper.getEmailVerificationPassword({
+        username: to,
+        link: url,
+      }),
     });
 
+    // eslint-disable-next-line no-console
     console.log('Message sent: %s', info.messageId);
     // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
 
     // Preview only available when sending through an Ethereal account
+    // eslint-disable-next-line no-console
     console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
     // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
   }
 
-  async sendForgotPasswordEmail({ to, url }) {
+  static async sendForgotPasswordEmail({ to, url }) {
     const { from, ...config } = smtpConfig;
     const transporter = nodemailer.createTransport(config);
-    return await transporter.sendMail({
+    return transporter.sendMail({
       from: `${from.name} <${from.email}>`,
       to,
       subject: 'Reset Password',
-      text: `Reset your password`,
+      text: 'Reset your password',
       html: emailHelper.getEmailTemplateResetPassword({
         username: to,
         link: url,

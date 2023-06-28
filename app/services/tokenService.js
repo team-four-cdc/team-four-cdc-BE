@@ -23,10 +23,11 @@ class TokenService {
     });
   }
 
-  async deleteToken({ generate_token }) {
+  /* eslint-disable camelcase */
+  async deleteToken({ generateToken }) {
     return this.tokenModel.destroy({
       where: {
-        generate_token,
+        generateToken,
       },
     });
   }
@@ -36,18 +37,17 @@ class TokenService {
     return result;
   }
 
-  async isValidToken({ generate_token }) {
+  async isValidToken({ generateToken }) {
     const dateNow = moment().unix();
     const getToken = await this.tokenModel.findOne({
-      where: { generate_token },
+      where: { generateToken },
     });
 
     if (getToken) {
       if (dateNow > moment(getToken?.expire_in).unix()) {
         return false;
-      } else {
-        return true;
       }
+      return true;
     }
 
     return false;

@@ -9,17 +9,17 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: executing remote ssh commands using ssh key
-      uses: appleboy/ssh-action@v0.1.10
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.KEY }}
-        port: ${{ secrets.PORT }}
-        script: |
-          cd ~/team-four-cdc-BE/
-          git checkout develop
-          git pull
-          sudo docker build -t portal-article-image .
-          sudo docker stop portal-article-container
-          sudo docker compose up -d app
+      - name: executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ~/team-four-cdc-BE/
+            git checkout develop
+            git pull
+            sudo docker build -t portal-article-image .
+            sudo docker stop portal-article-container
+            sudo docker compose up -d app

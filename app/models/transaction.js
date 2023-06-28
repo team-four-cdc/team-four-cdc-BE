@@ -1,6 +1,4 @@
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Transaction extends Model {
     /**
@@ -15,32 +13,35 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(models.ArticleReader, { foreignKey: 'transaction_id' });
     }
   }
-  Transaction.init({
-    account_number: {
-      type: DataTypes.STRING
+  Transaction.init(
+    {
+      account_number: {
+        type: DataTypes.STRING,
+      },
+      account_name: {
+        type: DataTypes.STRING,
+      },
+      bank_name: {
+        type: DataTypes.STRING,
+      },
+      article_id: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+        references: { model: 'Articles', key: 'id' },
+      },
+      status: {
+        type: DataTypes.STRING,
+      },
+      user_id: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+        references: { model: 'Users', key: 'id' },
+      },
     },
-    account_name: {
-      type: DataTypes.STRING
-    },
-    bank_name: {
-      type: DataTypes.STRING
-    },
-    article_id: {
-      allowNull: false,
-      type: DataTypes.INTEGER,
-      references: { model: 'Articles', key: 'id' },
-    },
-    status: {
-      type: DataTypes.STRING
-    },
-    user_id: {
-      allowNull: false,
-      type: DataTypes.INTEGER,
-      references: { model: 'Users', key: 'id' },
-    },
-  }, {
-    sequelize,
-    modelName: 'Transaction',
-  });
+    {
+      sequelize,
+      modelName: 'Transaction',
+    }
+  );
   return Transaction;
 };

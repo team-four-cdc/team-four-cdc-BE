@@ -41,6 +41,7 @@ const verifyAuthHandler = async (req, res) => {
 
     if (user) {
       const userId = user.id;
+      const fullName = user.full_name;
       const isValid = await verify(user.password, password);
       if (password && isValid) {
         const token = await tokenService.signToken(
@@ -54,6 +55,7 @@ const verifyAuthHandler = async (req, res) => {
           message: 'Users authenticated',
           data: {
             token,
+            fullName
           },
         });
       }

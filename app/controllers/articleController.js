@@ -343,6 +343,42 @@ const getPopularArticles = async (req, res) => {
   }
 };
 
+const getListOwnedArticle = async (req, res) => {
+  const { userId } = req.query;
+
+  const transactionService = new TransactionService({
+    transactionModel: db.Transaction,
+    articleModel: db.Article,
+    userModel: db.User,
+  });
+
+  try {
+    const transactions = await transactionService.getlistOwnedArticle({ userId });
+    if (transactions) {
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_200_OK,
+        message: 'success',
+        data: {
+          transactions
+        },
+      });
+    }
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_400_BAD_REQUEST,
+      message: 'Owned article is not found',
+    });
+  } catch (error) {
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+      message: 'error occurred',
+      error,
+    });
+  }
+};
+
 module.exports = {
   createArticleHandler,
   getArticleListing,
@@ -350,5 +386,6 @@ module.exports = {
   deleteArticleHandler,
   getDashboard,
   getDetailArticle,
-  getPopularArticles
+  getPopularArticles,
+  getListOwnedArticle
 };

@@ -76,7 +76,6 @@ const createUserController = async (req, res) => {
       message: `User ${value.email} created`,
     });
   } catch (errorCreateUser) {
-    console.log("ERROR", errorCreateUser)
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,

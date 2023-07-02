@@ -107,9 +107,9 @@ class ArticleService {
       },
       order: sequelize.random(),
       limit: 5,
-    }
+    };
 
-    return this.articleModel.findAll(query)
+    return this.articleModel.findAll(query);
   }
 
   async updateArticle({

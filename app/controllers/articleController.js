@@ -293,7 +293,6 @@ const getDetailArticle = async (req, res) => {
       data: article,
     });
   } catch (error) {
-    console.log(error.message)
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -304,7 +303,7 @@ const getDetailArticle = async (req, res) => {
 };
 
 const getRandomArticleByAuthor = async (req, res) => {
-  const { authorId } = req.query
+  const { authorId } = req.query;
 
   const articleService = new ArticleService({
     articleModel: db.Article,

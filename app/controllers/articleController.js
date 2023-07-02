@@ -228,6 +228,7 @@ const getDetailArticle = async (req, res) => {
   const articleService = new ArticleService({
     articleModel: db.Article,
     userModel: db.User,
+    categoryModel: db.Category,
   });
 
   const transactionService = new TransactionService({
@@ -283,6 +284,44 @@ const getDetailArticle = async (req, res) => {
           data: null
         });
       }
+    }
+
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_200_OK,
+      message: 'Article details retrieved successfully',
+      data: article,
+    });
+  } catch (error) {
+    console.log(error.message)
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+      message: 'error occurred',
+      error,
+    });
+  }
+};
+
+const getRandomArticleByAuthor = async (req, res) => {
+  const { authorId } = req.query
+
+  const articleService = new ArticleService({
+    articleModel: db.Article,
+    userModel: db.User,
+    categoryModel: db.Category,
+  });
+
+  try {
+    const article = await articleService.getRandomListingByAuthorId({ authorId });
+
+    if (!article) {
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_404_NOT_FOUND,
+        message: 'Article details with that Id not found',
+        data: article,
+      });
     }
 
     return httpRespStatusUtil.sendResponse({
@@ -387,5 +426,6 @@ module.exports = {
   getDashboard,
   getDetailArticle,
   getPopularArticles,
-  getListOwnedArticle
+  getListOwnedArticle,
+  getRandomArticleByAuthor,
 };

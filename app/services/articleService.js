@@ -1,8 +1,10 @@
 const { Op } = require('sequelize');
+const { sequelize, Sequelize } = require('../models');
 class ArticleService {
-  constructor({ articleModel, userModel }) {
+  constructor({ articleModel, userModel, categoryModel }) {
     this.articleModel = articleModel;
     this.userModel = userModel;
+    this.categoryModel = categoryModel;
   }
 
   async createArticle({
@@ -82,6 +84,34 @@ class ArticleService {
     return this.articleModel.findAll(query);
   }
 
+  async getRandomListingByAuthorId({ authorId }) {
+    const query = {
+      include: [{
+        model: this.userModel,
+        attributes: {
+          exclude: ['password', 'token', 'is_verified'],
+        },
+        as: 'author',
+      }, {
+        model: this.categoryModel,
+        as: 'category'
+      }],
+      attributes: [
+        'id',
+        'title',
+        [Sequelize.fn('CONCAT', Sequelize.fn('LEFT', Sequelize.col('body'), 50), '...'), 'body'],
+        'updatedAt'
+      ],
+      where: {
+        author_id: authorId
+      },
+      order: sequelize.random(),
+      limit: 5,
+    }
+
+    return this.articleModel.findAll(query)
+  }
+
   async updateArticle({
     articleId,
     title,
@@ -109,7 +139,21 @@ class ArticleService {
   }
 
   async getDetailArticle(articleId) {
-    return this.articleModel.findByPk(articleId);
+    return this.articleModel.findOne({
+      include: [{
+        model: this.userModel,
+        attributes: {
+          exclude: ['password', 'token', 'is_verified'],
+        },
+        as: 'author',
+      }, {
+        model: this.categoryModel,
+        as: 'category'
+      }],
+      where: {
+        id: articleId
+      }
+    });
   }
 
   async getPopularArticles(limit) {

@@ -113,7 +113,7 @@ const getEmailVerificationPassword = ({ username, link }) =>
                   <tr>
                     <td style="font-family:sans-serif;font-size:14px;vertical-align:top">
                       <p style="font-family:sans-serif;font-size:18px;font-weight:400;margin:0;margin-bottom:15px">Hallo ${username},</p>
-                      <p style="font-family:sans-serif;font-size:14px;font-weight:400;margin:0;margin-bottom:15px">Silahkan klik tombol di bawah ini untuk memverifikasi akun andas</p>
+                      <p style="font-family:sans-serif;font-size:14px;font-weight:400;margin:0;margin-bottom:15px">Silahkan klik tombol di bawah ini untuk memverifikasi akun anda</p>
                       <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary" style="border-collapse:separate;mso-table-lspace:0;mso-table-rspace:0;width:100%;box-sizing:border-box">
                         <tbody>
                           <tr>

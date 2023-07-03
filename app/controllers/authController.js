@@ -45,7 +45,9 @@ const verifyAuthHandler = async (req, res) => {
       const isValid = await verify(user.password, password);
       if (password && isValid) {
         const token = await tokenService.signToken(
-          { email, role, userId },
+          {
+            email, role, userId, fullName
+          },
           { expiresIn: '1d' }
         );
 

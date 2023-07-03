@@ -86,11 +86,9 @@ const createUserController = async (req, res) => {
 
 const verifyUserController = async (req, res) => {
   const { token } = req.body;
-
   const validationResult = verifyUserSchema.validate({
     token,
   });
-
   const { value, errorVerifyUser } = validationResult;
 
   if (errorVerifyUser) {
@@ -108,7 +106,7 @@ const verifyUserController = async (req, res) => {
     const user = await userService.findUserByToken({ token: value.token });
 
     if (user) {
-      await userService.verifyUser(user);
+      await UserService.verifyUser(user);
 
       return httpRespStatusUtil.sendResponse({
         res,

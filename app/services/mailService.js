@@ -4,7 +4,7 @@ const nodemailer = require('nodemailer');
 const emailHelper = require('../helpers/emailHelper');
 
 class MailService {
-  static async sendVerificationEmail({ token, to }) {
+  static async sendVerificationEmail({ token, to, full_name }) {
     const { from, ...config } = smtpConfig;
     const transporter = nodemailer.createTransport(config);
     const url = `${process.env.FE_HOST}/verifikasi/${token}`
@@ -14,7 +14,7 @@ class MailService {
       subject: 'Account Verification',
       text: `Verify using this link`,
       html: emailHelper.getEmailVerificationPassword({
-        username: to,
+        username: full_name,
         link: url,
       }),
     });

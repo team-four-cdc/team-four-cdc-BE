@@ -68,7 +68,7 @@ const createUserController = async (req, res) => {
       });
     }
 
-    MailService.sendVerificationEmail({ to: value.email, token });
+    MailService.sendVerificationEmail({ to: value.email, token, full_name:full_name });
 
     return httpRespStatusUtil.sendResponse({
       res,

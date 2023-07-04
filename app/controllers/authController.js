@@ -57,7 +57,6 @@ const verifyAuthHandler = async (req, res) => {
           message: 'Users authenticated',
           data: {
             token,
-            fullName
           },
         });
       }

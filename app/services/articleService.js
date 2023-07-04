@@ -84,7 +84,7 @@ class ArticleService {
     return this.articleModel.findAll(query);
   }
 
-  async getRandomListingByAuthorId({ authorId }) {
+  async getRandomListingByAuthorId({ authorId, limit }) {
     const query = {
       include: [{
         model: this.userModel,
@@ -106,7 +106,7 @@ class ArticleService {
         author_id: authorId
       },
       order: sequelize.random(),
-      limit: 5,
+      limit: limit,
     };
 
     return this.articleModel.findAll(query);

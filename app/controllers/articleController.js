@@ -303,7 +303,7 @@ const getDetailArticle = async (req, res) => {
 };
 
 const getRandomArticleByAuthor = async (req, res) => {
-  const { authorId } = req.query;
+  const { authorId, limit } = req.query;
 
   const articleService = new ArticleService({
     articleModel: db.Article,
@@ -312,7 +312,7 @@ const getRandomArticleByAuthor = async (req, res) => {
   });
 
   try {
-    const article = await articleService.getRandomListingByAuthorId({ authorId });
+    const article = await articleService.getRandomListingByAuthorId({ authorId, limit });
 
     if (!article) {
       return httpRespStatusUtil.sendResponse({
@@ -326,7 +326,7 @@ const getRandomArticleByAuthor = async (req, res) => {
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_200_OK,
-      message: 'Article details retrieved successfully',
+      message: 'Random Articles retrieved successfully',
       data: article,
     });
   } catch (error) {

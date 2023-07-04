@@ -106,6 +106,7 @@ const verifyUserController = async (req, res) => {
     const user = await userService.findUserByToken({ token: value.token });
 
     if (user) {
+      console.log("USER", user)
       await UserService.verifyUser(user);
 
       return httpRespStatusUtil.sendResponse({

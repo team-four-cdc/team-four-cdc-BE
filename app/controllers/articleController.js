@@ -9,6 +9,7 @@ const getDashboard = async (req, res) => {
   const { userId } = req.query;
 
   const articleService = new ArticleService({
+    transactionModel: db.Transaction,
     articleModel: db.Article,
     userModel: db.User,
   });

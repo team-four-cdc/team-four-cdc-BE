@@ -7,10 +7,12 @@ class UserService {
   async createUser({
     email,
     password,
-    fullName,
+    /* eslint-disable camelcase */
+    full_name,
     role,
     author,
-    photoUrl,
+    /* eslint-disable camelcase */
+    photo_url,
     token,
   }) {
     const user = await this.findDuplicateUser({ email, role });
@@ -24,10 +26,12 @@ class UserService {
     return this.userModel.create({
       email,
       password: hashedPassword,
-      fullName,
+      /* eslint-disable camelcase */
+      full_name,
       role,
       author,
-      photoUrl,
+      /* eslint-disable camelcase */
+      photo_url,
       token,
       is_verified: false,
     });

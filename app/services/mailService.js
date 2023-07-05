@@ -7,12 +7,12 @@ class MailService {
   static async sendVerificationEmail({ token, to, full_name }) {
     const { from, ...config } = smtpConfig;
     const transporter = nodemailer.createTransport(config);
-    const url = `${process.env.FE_HOST}/verifikasi/${token}`
+    const url = `${process.env.FE_HOST}/verifikasi/${token}`;
     const info = await transporter.sendMail({
       from: `${from.name} <${from.email}>`,
       to,
       subject: 'Account Verification',
-      text: `Verify using this link`,
+      text: 'Verify using this link',
       html: emailHelper.getEmailVerificationPassword({
         username: full_name,
         link: url,

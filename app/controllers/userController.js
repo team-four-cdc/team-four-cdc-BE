@@ -107,7 +107,6 @@ const verifyUserController = async (req, res) => {
     const user = await userService.findUserByToken({ token: value.token });
 
     if (user) {
-      console.log("USER", user.dataValues.createdAt)
       var expiry_date = moment(user.dataValues.createdAt, "DD-MM-YYYY").add(3, 'days');
       let today = moment();
       if (today > expiry_date) {
@@ -117,13 +116,12 @@ const verifyUserController = async (req, res) => {
           message: 'Verification Expired',
         });
       }
+      await UserService.verifyUser(user);
       return httpRespStatusUtil.sendResponse({
         res,
         status: status.HTTP_200_OK,
         message: 'User verified',
       });
-      await UserService.verifyUser(user);
-
       
     }
     return httpRespStatusUtil.sendResponse({

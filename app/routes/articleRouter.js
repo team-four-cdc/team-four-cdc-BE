@@ -5,6 +5,7 @@ const { authJWT } = require('../middlewares/authJWT');
 const { uploadCover } = require('../middlewares/upload');
 
 router.get('/listing', articleController.getArticleListing);
+router.get('/unbought-list', articleController.getUnboughtList);
 router.get('/dashboard', articleController.getDashboard);
 router.get('/popular-article', articleController.getPopularArticles);
 router.get('/owned-article', articleController.getListOwnedArticle);

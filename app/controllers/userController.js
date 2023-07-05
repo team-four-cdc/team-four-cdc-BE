@@ -1,6 +1,7 @@
 const UserService = require('../services/userService');
 const MailService = require('../services/mailService');
 const TokenService = require('../services/tokenService');
+const moment = require('moment');
 const {
   registerUserSchema,
   verifyUserSchema,
@@ -106,14 +107,24 @@ const verifyUserController = async (req, res) => {
     const user = await userService.findUserByToken({ token: value.token });
 
     if (user) {
-      console.log("USER", user)
-      await UserService.verifyUser(user);
-
+      console.log("USER", user.dataValues.createdAt)
+      var expiry_date = moment(user.dataValues.createdAt, "DD-MM-YYYY").add(3, 'days');
+      let today = moment();
+      if (today > expiry_date) {
+        return httpRespStatusUtil.sendResponse({
+          res,
+          status: status.HTTP_400_BAD_REQUEST,
+          message: 'Verification Expired',
+        });
+      }
       return httpRespStatusUtil.sendResponse({
         res,
         status: status.HTTP_200_OK,
         message: 'User verified',
       });
+      await UserService.verifyUser(user);
+
+      
     }
     return httpRespStatusUtil.sendResponse({
       res,
@@ -121,6 +132,7 @@ const verifyUserController = async (req, res) => {
       message: 'User not found',
     });
   } catch (error) {
+    console.log("ERROR", error)
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,

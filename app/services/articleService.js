@@ -54,7 +54,7 @@ class ArticleService {
     return this.articleModel.findAll(query);
   }
 
-  async getListUnbought({ userId, limit }) {
+  async getUnboughtList({ userId, limit }) {
     const query = {
       include: {
         model: this.transactionModel,

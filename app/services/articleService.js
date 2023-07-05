@@ -2,6 +2,7 @@ const { Op } = require('sequelize');
 const { sequelize, Sequelize } = require('../models');
 class ArticleService {
   constructor({ articleModel, userModel, categoryModel }) {
+    this.transactionModel = transactionModel;
     this.articleModel = articleModel;
     this.userModel = userModel;
     this.categoryModel = categoryModel;
@@ -37,6 +38,38 @@ class ArticleService {
         as: 'author',
       },
       order: [['createdAt', 'DESC']],
+    };
+
+    if (userId) {
+      if (Array.isArray(userId)) {
+        query.where = {
+          author_id: {
+            [Op.or]: userId,
+          },
+        };
+      } else {
+        query.where = {
+          author_id: userId,
+        };
+      }
+    }
+    return this.articleModel.findAll(query);
+  }
+
+  async getUnboughtList({ userId, limit }) {
+    const query = {
+      include: {
+        model: this.transactionModel,
+        where: {
+          user_id: {
+            [sequelize.Op.not]: userId
+          }
+        },
+        as: 'transactions',
+        required: true,
+      },
+      order: [['createdAt', 'DESC']],
+      limit: limit
     };
 
     if (userId) {

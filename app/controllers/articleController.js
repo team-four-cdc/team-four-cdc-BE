@@ -9,6 +9,7 @@ const getDashboard = async (req, res) => {
   const { userId } = req.query;
 
   const articleService = new ArticleService({
+    transactionModel: db.Transaction,
     articleModel: db.Article,
     userModel: db.User,
   });
@@ -63,6 +64,38 @@ const getArticleListing = async (req, res) => {
 
   try {
     const article = await articleService.getListing({ userId });
+    if (article) {
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_200_OK,
+        message: 'success',
+        data: article,
+      });
+    }
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_404_NOT_FOUND,
+      message: 'failed',
+    });
+  } catch (error) {
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+      message: 'error occurred',
+    });
+  }
+};
+
+const getUnboughtList = async (req, res) => {
+  const { userId, limit } = req.query;
+
+  const articleService = new ArticleService({
+    articleModel: db.Article,
+    userModel: db.User,
+  });
+
+  try {
+    const article = await articleService.getUnboughtList({ userId, limit });
     if (article) {
       return httpRespStatusUtil.sendResponse({
         res,
@@ -427,4 +460,5 @@ module.exports = {
   getPopularArticles,
   getListOwnedArticle,
   getRandomArticleByAuthor,
+  getUnboughtList
 };

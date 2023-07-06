@@ -1,6 +1,6 @@
 // import { expect, describe, it, afterAll } from '@jest/globals';
 const db = require('../../app/models');
-const CategoryService = require('../../app/services/CategoryService');
+const CategoryService = require('../../app/services/categoryService');
 
 describe('Category Services', () => {
   const categoryService = new CategoryService();

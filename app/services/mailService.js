@@ -29,7 +29,7 @@ class MailService {
     // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
   }
 
-  static async sendForgotPasswordEmail({ to, url }) {
+  async sendForgotPasswordEmail({ to, url }) {
     const { from, ...config } = smtpConfig;
     const transporter = nodemailer.createTransport(config);
     return transporter.sendMail({

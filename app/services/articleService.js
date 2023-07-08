@@ -1,7 +1,7 @@
 const { Op } = require('sequelize');
 const { sequelize, Sequelize } = require('../models');
 class ArticleService {
-  constructor({ articleModel, userModel, categoryModel }) {
+  constructor({ articleModel, userModel, categoryModel, transactionModel }) {
     this.transactionModel = transactionModel;
     this.articleModel = articleModel;
     this.userModel = userModel;

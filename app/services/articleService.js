@@ -240,7 +240,7 @@ class ArticleService {
         model: this.categoryModel,
         as: 'category'
       }],
-      order: [['publish_date', 'DESC']],
+      order: [['updatedAt', 'DESC']],
       limit,
     });
   }

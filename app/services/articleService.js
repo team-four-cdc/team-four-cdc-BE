@@ -56,6 +56,28 @@ class ArticleService {
     return this.articleModel.findAll(query);
   }
 
+  async getListingByCategory({ categoryId, limit }) {
+    const query = {
+      include: [{
+        model: this.userModel,
+        attributes: {
+          exclude: ['password', 'token', 'is_verified'],
+        },
+        as: 'author',
+      }, {
+        model: this.categoryModel,
+        as: 'category'
+      }],
+      order: [['createdAt', 'DESC']],
+      where: {
+        category_id: categoryId
+      },
+      limit: limit
+    };
+
+    return this.articleModel.findAll(query);
+  }
+
   async getUnboughtList({ userId, limit }) {
     const query = {
       include: {
@@ -191,7 +213,34 @@ class ArticleService {
 
   async getPopularArticles(limit) {
     return this.articleModel.findAll({
+      include: [{
+        model: this.userModel,
+        attributes: {
+          exclude: ['password', 'token', 'is_verified'],
+        },
+        as: 'author',
+      }, {
+        model: this.categoryModel,
+        as: 'category'
+      }],
       order: [['total_clicks', 'DESC']],
+      limit,
+    });
+  }
+
+  async getNewestArticles(limit) {
+    return this.articleModel.findAll({
+      include: [{
+        model: this.userModel,
+        attributes: {
+          exclude: ['password', 'token', 'is_verified'],
+        },
+        as: 'author',
+      }, {
+        model: this.categoryModel,
+        as: 'category'
+      }],
+      order: [['updatedAt', 'DESC']],
       limit,
     });
   }

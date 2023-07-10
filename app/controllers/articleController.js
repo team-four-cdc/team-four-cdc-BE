@@ -92,6 +92,7 @@ const getUnboughtList = async (req, res) => {
   const articleService = new ArticleService({
     articleModel: db.Article,
     userModel: db.User,
+    transactionModel: db.Transaction
   });
 
   try {
@@ -110,6 +111,7 @@ const getUnboughtList = async (req, res) => {
       message: 'failed',
     });
   } catch (error) {
+    console.log(error.message)
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,

@@ -10,8 +10,8 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.belongsTo(models.User, { as: 'author', foreignKey: 'author_id' });
       this.belongsTo(models.Category, { as: 'category', foreignKey: 'category_id' });
-      this.hasMany(models.ArticleReader, { foreignKey: 'article_id' });
-      this.hasMany(models.Transaction, { as: 'transactions', foreignKey: 'article_id' });
+      this.hasMany(models.ArticleReader, { as: 'article', foreignKey: 'article_id' });
+      this.hasMany(models.Transaction, { as: 'transaction', foreignKey: 'article_id' });
     }
   }
   Article.init(

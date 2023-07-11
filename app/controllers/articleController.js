@@ -124,12 +124,47 @@ const getArticleListing = async (req, res) => {
   }
 };
 
+const getArticleListingByCategory = async (req, res) => {
+  const { categoryId, limit } = req.query;
+
+  const articleService = new ArticleService({
+    articleModel: db.Article,
+    userModel: db.User,
+    categoryModel: db.Category,
+  });
+
+  try {
+    const article = await articleService.getListingByCategory({ limit, categoryId });
+    if (article) {
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_200_OK,
+        message: 'success',
+        data: article,
+      });
+    }
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_404_NOT_FOUND,
+      message: 'failed',
+    });
+  } catch (error) {
+    console.log(error)
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+      message: 'error occurred',
+    });
+  }
+};
+
 const getUnboughtList = async (req, res) => {
   const { userId, limit } = req.query;
   const articleService = new ArticleService({
     transactionModel: db.Transaction,
     articleModel: db.Article,
     userModel: db.User,
+    transactionModel: db.Transaction
   });
 
   try {
@@ -324,13 +359,14 @@ const getDetailArticle = async (req, res) => {
     }
 
     if (req.user.role === 'reader') {
-      const getOwnedArticle = await transactionService.getOwnedArticle(userId, articleId);
-      if (!getOwnedArticle) {
+      const checkOwnedArticle = await transactionService.checkOwnedArticle(userId, articleId);
+      if (!checkOwnedArticle) {
+        article.body = `notOwned ${article.body}`.slice(0, 50) + "..."
         return httpRespStatusUtil.sendResponse({
           res,
-          status: status.HTTP_403_FORBIDDEN,
-          message: 'Access denied. Please purchase the article',
-          data: null
+          status: status.HTTP_200_OK,
+          message: 'Article details retrieved successfully',
+          data: article
         });
       }
 
@@ -367,6 +403,7 @@ const getDetailArticle = async (req, res) => {
       data: article,
     });
   } catch (error) {
+    console.log(error.message)
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -417,10 +454,11 @@ const getPopularArticles = async (req, res) => {
   const articleService = new ArticleService({
     articleModel: db.Article,
     userModel: db.User,
+    categoryModel: db.Category,
   });
 
-  const { limit = 10 } = req.body;
-  if (!Number.isInteger(limit) || limit <= 0) {
+  const { limit = 10 } = req.query;
+  if (!typeof limit == 'number' || limit <= 0) {
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_400_BAD_REQUEST,
@@ -442,7 +480,50 @@ const getPopularArticles = async (req, res) => {
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_200_OK,
-      message: 'Article details retrieved successfully',
+      message: 'Articles retrieved successfully',
+      data: article,
+    });
+  } catch (error) {
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+      message: 'error occurred',
+      error,
+    });
+  }
+};
+
+const getNewestArticles = async (req, res) => {
+  const articleService = new ArticleService({
+    articleModel: db.Article,
+    userModel: db.User,
+    categoryModel: db.Category,
+  });
+
+  const { limit = 10 } = req.query;
+  if (!typeof limit == 'number' || limit <= 0) {
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_400_BAD_REQUEST,
+      message: 'Invalid limit value',
+    });
+  }
+
+  try {
+    const article = await articleService.getNewestArticles(limit);
+
+    if (!article || article.length === 0) {
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_204_NO_CONTENT,
+        message: 'No articles found',
+      });
+    }
+
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_200_OK,
+      message: 'Articles retrieved successfully',
       data: article,
     });
   } catch (error) {
@@ -501,5 +582,7 @@ module.exports = {
   getPopularArticles,
   getListOwnedArticle,
   getRandomArticleByAuthor,
-  getUnboughtList
+  getUnboughtList,
+  getNewestArticles,
+  getArticleListingByCategory
 };

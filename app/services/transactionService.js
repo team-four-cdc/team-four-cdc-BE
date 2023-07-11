@@ -74,7 +74,7 @@ class TransactionService {
 
   async getOwnedArticle(userId, articleId) {
     return this.transactionModel.findOne(
-      { where: { user_id: userId, article_id: articleId } }
+      { where: { user_id: userId, article_id: articleId } },
     );
   }
 

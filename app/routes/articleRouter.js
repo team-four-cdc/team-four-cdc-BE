@@ -9,6 +9,8 @@ router.get('/random-listing', articleController.getRandomArticleByAuthor);
 router.get('/unbought-list', articleController.getUnboughtList);
 router.get('/dashboard', articleController.getDashboard);
 router.get('/popular-article', articleController.getPopularArticles);
+router.get('/newest-article', articleController.getNewestArticles);
+router.get('/articles-by-category', articleController.getArticleListingByCategory);
 router.get('/owned-article', articleController.getListOwnedArticle);
 
 router.get('/:articleId', authJWT, articleController.getDetailArticle);

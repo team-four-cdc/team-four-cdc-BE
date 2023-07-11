@@ -55,33 +55,71 @@ const getDashboard = async (req, res) => {
 };
 
 const getArticleListing = async (req, res) => {
-  const { userId } = req.query;
+  const { userId } = req.user;
 
   const articleService = new ArticleService({
     articleModel: db.Article,
     userModel: db.User,
   });
 
+  const transactionService = new TransactionService({
+    transactionModel: db.Transaction,
+    articleModel: db.Article,
+    userModel: db.User,
+  });
+
   try {
-    const article = await articleService.getListing({ userId });
-    if (article) {
+    let limit = 10;
+    let offset = 0;
+    if (req.query.limit && req.query.page) {
+      let page = parseInt(String(req.query.page));
+      if (page !== 0) {
+        page -= 1;
+      }
+      limit = parseInt(String(req.query.limit));
+      offset += page * limit;
+    }
+
+    if (req.user.role === 'reader') {
+      const ownedArticleList = await transactionService.getOwnedArticleList(userId, limit, offset);
+      if (ownedArticleList.length === 0) {
+        return httpRespStatusUtil.sendResponse({
+          res,
+          status: status.HTTP_204_NO_CONTENT,
+          message: 'Found no article. Please purchase an article',
+          data: null
+        });
+      }
       return httpRespStatusUtil.sendResponse({
         res,
         status: status.HTTP_200_OK,
-        message: 'success',
-        data: article,
+        message: 'List of articles fetched successfully.',
+        data: ownedArticleList,
       });
     }
+
+    const createdArticleList = await articleService.getCreatedArticleList(userId, limit, offset);
+    if (!createdArticleList) {
+      return httpRespStatusUtil.sendResponse({
+        res,
+        status: status.HTTP_204_NO_CONTENT,
+        message: 'Found no article. Please create an article',
+        data: null
+      });
+    }
+
     return httpRespStatusUtil.sendResponse({
       res,
-      status: status.HTTP_404_NOT_FOUND,
-      message: 'failed',
+      status: status.HTTP_200_OK,
+      message: 'List of articles fetched successfully.',
+      data: createdArticleList,
     });
   } catch (error) {
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,
       message: 'error occurred',
+      error,
     });
   }
 };
@@ -122,8 +160,8 @@ const getArticleListingByCategory = async (req, res) => {
 
 const getUnboughtList = async (req, res) => {
   const { userId, limit } = req.query;
-
   const articleService = new ArticleService({
+    transactionModel: db.Transaction,
     articleModel: db.Article,
     userModel: db.User,
     transactionModel: db.Transaction
@@ -145,6 +183,7 @@ const getUnboughtList = async (req, res) => {
       message: 'failed',
     });
   } catch (error) {
+    console.log("ERROR", error)
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -201,6 +240,7 @@ const createArticleHandler = async (req, res) => {
       data: article,
     });
   } catch (errorCreateArticle) {
+
     if (errorCreateArticle.name === 'SequelizeForeignKeyConstraintError') {
       return httpRespStatusUtil.sendResponse({
         res,
@@ -208,6 +248,7 @@ const createArticleHandler = async (req, res) => {
         message: 'Foreign key is not exist',
       });
     }
+
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -344,7 +385,7 @@ const getDetailArticle = async (req, res) => {
         });
       }
     } else {
-      const checkCreatorArticle = await articleService.checkCreatedArticle(req.user.userId, articleId);
+      const checkCreatorArticle = await articleService.getCreatedArticle(userId, articleId);
       if (!checkCreatorArticle) {
         return httpRespStatusUtil.sendResponse({
           res,

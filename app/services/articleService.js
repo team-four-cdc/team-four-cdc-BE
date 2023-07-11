@@ -89,24 +89,17 @@ class ArticleService {
         },
         as: 'transaction',
         required: true,
+        include: {
+          model: this.userModel,
+          attributes: {
+            exclude: ['password', 'token', 'is_verified'],
+          },
+          as: 'user',
+        }
       },
       order: [['createdAt', 'DESC']],
       limit: limit
     };
-
-    if (userId) {
-      if (Array.isArray(userId)) {
-        query.where = {
-          author_id: {
-            [Op.or]: userId,
-          },
-        };
-      } else {
-        query.where = {
-          author_id: userId,
-        };
-      }
-    }
     return this.articleModel.findAll(query);
   }
 
@@ -249,6 +242,15 @@ class ArticleService {
     return this.articleModel.findOne(
       { where: { author_id: userId, id: articleId } }
     );
+  }
+
+  async getCreatedArticleList(userId, limit, offset) {
+    return this.articleModel.findAll({
+      where: { author_id: userId },
+      order: [['createdAt', 'DESC']],
+      limit,
+      offset
+    });
   }
 }
 

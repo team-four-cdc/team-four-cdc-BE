@@ -72,9 +72,20 @@ class TransactionService {
     return this.transactionModel.findAll(query);
   }
 
-  async checkOwnedArticle(userId, articleId) {
+  async getOwnedArticle(userId, articleId) {
     return this.transactionModel.findOne(
       { where: { user_id: userId, article_id: articleId } }
+    );
+  }
+
+  async getOwnedArticleList(userId, limit, offset) {
+    return this.transactionModel.findAll(
+      {
+        where: { user_id: userId },
+        order: [['createdAt', 'DESC']],
+        limit,
+        offset
+      }
     );
   }
 }

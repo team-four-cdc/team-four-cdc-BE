@@ -126,8 +126,8 @@ const getArticleListing = async (req, res) => {
 
 const getUnboughtList = async (req, res) => {
   const { userId, limit } = req.query;
-
   const articleService = new ArticleService({
+    transactionModel: db.Transaction,
     articleModel: db.Article,
     userModel: db.User,
   });
@@ -148,6 +148,7 @@ const getUnboughtList = async (req, res) => {
       message: 'failed',
     });
   } catch (error) {
+    console.log("ERROR", error)
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,

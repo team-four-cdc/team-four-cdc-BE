@@ -1,7 +1,7 @@
 const { Op } = require('sequelize');
 const { sequelize, Sequelize } = require('../models');
 class ArticleService {
-  constructor({ articleModel, userModel, categoryModel }) {
+  constructor({ articleModel, userModel, categoryModel, transactionModel }) {
     this.transactionModel = transactionModel;
     this.articleModel = articleModel;
     this.userModel = userModel;
@@ -62,29 +62,22 @@ class ArticleService {
         model: this.transactionModel,
         where: {
           user_id: {
-            [sequelize.Op.not]: userId
+            [Op.not]: userId
           }
         },
         as: 'transactions',
         required: true,
+        include: {
+          model: this.userModel,
+          attributes: {
+            exclude: ['password', 'token', 'is_verified'],
+          },
+          as: 'user',
+        }
       },
       order: [['createdAt', 'DESC']],
       limit: limit
     };
-
-    if (userId) {
-      if (Array.isArray(userId)) {
-        query.where = {
-          author_id: {
-            [Op.or]: userId,
-          },
-        };
-      } else {
-        query.where = {
-          author_id: userId,
-        };
-      }
-    }
     return this.articleModel.findAll(query);
   }
 

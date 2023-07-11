@@ -40,6 +40,7 @@ const verifyAuthHandler = async (req, res) => {
     });
 
     if (user) {
+      console.log("USER", user)
       const userId = user.id;
       const fullName = user.full_name;
       const isValid = await verify(user.password, password);

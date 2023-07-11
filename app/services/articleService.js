@@ -1,9 +1,11 @@
 const { Op } = require('sequelize');
+const { sequelize, Sequelize } = require('../models');
 class ArticleService {
-  constructor({ transactionModel, articleModel, userModel }) {
+  constructor({ articleModel, userModel, categoryModel, transactionModel }) {
     this.transactionModel = transactionModel;
     this.articleModel = articleModel;
     this.userModel = userModel;
+    this.categoryModel = categoryModel;
   }
 
   async createArticle({
@@ -58,9 +60,11 @@ class ArticleService {
     const query = {
       include: {
         model: this.transactionModel,
-        where: {user_id: {
-          [Op.not]: userId
-        }},
+        where: {
+          user_id: {
+            [Op.not]: userId
+          }
+        },
         as: 'transactions',
         required: true,
         include: {
@@ -106,6 +110,34 @@ class ArticleService {
     return this.articleModel.findAll(query);
   }
 
+  async getRandomListingByAuthorId({ authorId, limit }) {
+    const query = {
+      include: [{
+        model: this.userModel,
+        attributes: {
+          exclude: ['password', 'token', 'is_verified'],
+        },
+        as: 'author',
+      }, {
+        model: this.categoryModel,
+        as: 'category'
+      }],
+      attributes: [
+        'id',
+        'title',
+        [Sequelize.fn('CONCAT', Sequelize.fn('LEFT', Sequelize.col('body'), 50), '...'), 'body'],
+        'updatedAt'
+      ],
+      where: {
+        author_id: authorId
+      },
+      order: sequelize.random(),
+      limit: limit,
+    };
+
+    return this.articleModel.findAll(query);
+  }
+
   async updateArticle({
     articleId,
     title,
@@ -133,7 +165,21 @@ class ArticleService {
   }
 
   async getDetailArticle(articleId) {
-    return this.articleModel.findByPk(articleId);
+    return this.articleModel.findOne({
+      include: [{
+        model: this.userModel,
+        attributes: {
+          exclude: ['password', 'token', 'is_verified'],
+        },
+        as: 'author',
+      }, {
+        model: this.categoryModel,
+        as: 'category'
+      }],
+      where: {
+        id: articleId
+      }
+    });
   }
 
   async getPopularArticles(limit) {
@@ -143,10 +189,19 @@ class ArticleService {
     });
   }
 
-  async checkCreatedArticle(userId, articleId) {
+  async getCreatedArticle(userId, articleId) {
     return this.articleModel.findOne(
       { where: { author_id: userId, id: articleId } }
     );
+  }
+
+  async getCreatedArticleList(userId, limit, offset) {
+    return this.articleModel.findAll({
+      where: { author_id: userId },
+      order: [['createdAt', 'DESC']],
+      limit,
+      offset
+    });
   }
 }
 

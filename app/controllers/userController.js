@@ -37,7 +37,6 @@ const createUserController = async (req, res) => {
   }
 
   const userService = new UserService({ userModel: db.User });
-  const mailService = new MailService();
   const tokenService = new TokenService({ tokenModel: db.Token });
 
   const user = await userService.findDuplicateUser({

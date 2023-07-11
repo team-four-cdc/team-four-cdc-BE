@@ -1,5 +1,4 @@
 const { Model } = require('sequelize');
-const { hash } = require('../utils/hashPassword');
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {

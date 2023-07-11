@@ -1,3 +1,4 @@
+const { verify } = require('argon2');
 const UserService = require('../services/userService');
 const AuthService = require('../services/authService');
 const TokenService = require('../services/tokenService');
@@ -12,9 +13,8 @@ const {
 } = require('../validator/userValidator');
 const db = require('../models');
 const status = require('../constants/status');
-const { verify } = require('argon2');
 
-const verifyAuthHandler = async (req, res, next) => {
+const verifyAuthHandler = async (req, res) => {
   const { email, password } = req.body;
   const { role } = req.params;
 
@@ -41,10 +41,13 @@ const verifyAuthHandler = async (req, res, next) => {
 
     if (user) {
       const userId = user.id;
+      const fullName = user.full_name;
       const isValid = await verify(user.password, password);
       if (password && isValid) {
         const token = await tokenService.signToken(
-          { email, role, userId },
+          {
+            email, role, userId, fullName
+          },
           { expiresIn: '1d' }
         );
 
@@ -56,21 +59,19 @@ const verifyAuthHandler = async (req, res, next) => {
             token,
           },
         });
-      } else {
-        return httpRespStatusUtil.sendResponse({
-          res,
-          status: status.HTTP_401_UNAUTHORIZED,
-          message: 'Invalid credentials',
-        });
       }
-    } else {
       return httpRespStatusUtil.sendResponse({
         res,
-        status: status.HTTP_400_BAD_REQUEST,
-        message: 'Invalid request, user not valid',
+        status: status.HTTP_401_UNAUTHORIZED,
+        message: 'Invalid credentials',
       });
     }
-  } catch (error) {
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_400_BAD_REQUEST,
+      message: 'Invalid request, user not valid',
+    });
+  } catch (errorVerifyAuth) {
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -79,7 +80,7 @@ const verifyAuthHandler = async (req, res, next) => {
   }
 };
 
-const forgotPasswordWithEmailHandler = async (req, res, next) => {
+const forgotPasswordWithEmailHandler = async (req, res) => {
   const { email } = req.body;
   const { role } = req.params;
 
@@ -120,7 +121,12 @@ const forgotPasswordWithEmailHandler = async (req, res, next) => {
         message: 'Reset password has been send to your email',
       });
     }
-  } catch (error) {
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_500_INTERNAL_SERVER_ERROR,
+      message: 'Email not sent',
+    });
+  } catch (errorForgotPassword) {
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -159,14 +165,13 @@ const updatePasswordHandler = async (req, res) => {
         status: status.HTTP_200_OK,
         message: 'Reset password successfully',
       });
-    } else {
-      return httpRespStatusUtil.sendResponse({
-        res,
-        status: status.HTTP_400_BAD_REQUEST,
-        message: resetErr.message,
-      });
     }
-  } catch (error) {
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_400_BAD_REQUEST,
+      message: resetErr.message,
+    });
+  } catch (errorUpdatePassword) {
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -207,7 +212,11 @@ const refreshTokenHandler = async (req, res) => {
     }
     try {
       const signToken = await tokenService.signToken(
-        { email: userPayload.email, role: userPayload.role, userId: userPayload.userId },
+        {
+          email: userPayload.email,
+          role: userPayload.role,
+          userId: userPayload.userId,
+        },
         { expiresIn: '15d' }
       );
 
@@ -219,14 +228,14 @@ const refreshTokenHandler = async (req, res) => {
           signToken,
         },
       });
-    } catch (error) {
+    } catch (errorRefreshToken) {
       return httpRespStatusUtil.sendResponse({
         res,
         status: status.HTTP_500_INTERNAL_SERVER_ERROR,
         message: 'Error occured',
       });
     }
-  } catch (error) {
+  } catch (errorRefreshToken) {
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_400_BAD_REQUEST,

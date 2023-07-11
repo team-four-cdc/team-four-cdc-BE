@@ -1,4 +1,3 @@
-const { Op } = require('sequelize');
 const sequelize = require('sequelize');
 class TransactionService {
   constructor({ transactionModel, articleModel, userModel }) {
@@ -8,26 +7,35 @@ class TransactionService {
   }
 
   async createTransaction({
+    /* eslint-disable camelcase */
     account_number,
+    /* eslint-disable camelcase */
     account_name,
+    /* eslint-disable camelcase */
     bank_name,
+    /* eslint-disable camelcase */
     article_id,
     status,
-    user_id
+    /* eslint-disable camelcase */
+    user_id,
   }) {
     return this.transactionModel.create({
+      /* eslint-disable camelcase */
       account_number,
+      /* eslint-disable camelcase */
       account_name,
+      /* eslint-disable camelcase */
       bank_name,
+      /* eslint-disable camelcase */
       article_id,
+      /* eslint-disable camelcase */
       status,
-      user_id
+      /* eslint-disable camelcase */
+      user_id,
     });
   }
 
-  async getDashboardTransaction({
-    articleIds
-  }) {
+  async getDashboardTransaction({ articleIds }) {
     const query = {
       include: {
         model: this.articleModel,
@@ -36,16 +44,15 @@ class TransactionService {
       },
       attributes: [
         'Article.id',
-        [sequelize.fn("COUNT", sequelize.col("Article.id")), "sales"],
-        [sequelize.fn("SUM", sequelize.col("Article.price")), "value"],
+        [sequelize.fn('COUNT', sequelize.col('Article.id')), 'sales'],
+        [sequelize.fn('SUM', sequelize.col('Article.price')), 'value'],
       ],
       group: ['Article.id'],
-
     };
     query.where = {
-      article_id: articleIds
+      article_id: articleIds,
     };
-    return await this.transactionModel.findAll(query);
+    return this.transactionModel.findAll(query);
   }
 
   async getlistOwnedArticle({
@@ -62,7 +69,7 @@ class TransactionService {
     query.where = {
       user_id: userId
     };
-    return await this.transactionModel.findAll(query);
+    return this.transactionModel.findAll(query);
   }
 
   async getOwnedArticle(userId, articleId) {

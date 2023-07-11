@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const TokenService = require('./tokenService');
-const MailService = require('../services/mailService');
+const MailService = require('./mailService');
 const db = require('../models');
 const { hash } = require('../utils/hashPassword');
 class AuthService {
@@ -20,16 +20,18 @@ class AuthService {
       const url = `${process.env.FE_HOST}/ubah-password/${generateToken}?role=${params.role}`;
       const decodeToken = jwt.decode(generateToken);
       /*
-      Store expire_in as unix format date 
+      Store expire_in as unix format date
       */
       await tokenService.storeToken({
         user_id: params.id,
         generate_token: generateToken,
-        expire_in: decodeToken['exp'],
+        expire_in: decodeToken.exp,
       });
       await this.mailService.sendForgotPasswordEmail({ to: params.email, url });
       return true;
     } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(e);
       throw e;
     }
   }
@@ -49,8 +51,8 @@ class AuthService {
           { password: hashedPassword },
           {
             where: {
-              email: extractedToken['email'],
-              role: extractedToken['role'],
+              email: extractedToken.email,
+              role: extractedToken.role,
               is_verified: true,
             },
           }
@@ -68,6 +70,8 @@ class AuthService {
         error: { message: 'Expired token for resetting password!' },
       };
     } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(e);
       throw e;
     }
   }

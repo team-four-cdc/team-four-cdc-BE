@@ -1,6 +1,7 @@
 const UserService = require('../services/userService');
 const MailService = require('../services/mailService');
 const TokenService = require('../services/tokenService');
+const moment = require('moment');
 const {
   registerUserSchema,
   verifyUserSchema,
@@ -10,11 +11,15 @@ const db = require('../models');
 const status = require('../constants/status');
 
 const createUserController = async (req, res) => {
-  const { email, password, full_name, role, author } = req.body;
+  const {
+    /* eslint-disable camelcase */
+    email, password, full_name, role, author
+  } = req.body;
 
   const validationResult = registerUserSchema.validate({
     email,
     password,
+    /* eslint-disable camelcase */
     full_name,
     role,
     author,
@@ -32,7 +37,6 @@ const createUserController = async (req, res) => {
   }
 
   const userService = new UserService({ userModel: db.User });
-  const mailService = new MailService();
   const tokenService = new TokenService({ tokenModel: db.Token });
 
   const user = await userService.findDuplicateUser({
@@ -64,14 +68,14 @@ const createUserController = async (req, res) => {
       });
     }
 
-    mailService.sendVerificationEmail({ to: value.email, token });
+    MailService.sendVerificationEmail({ to: value.email, token, full_name:full_name });
 
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_200_OK,
       message: `User ${value.email} created`,
     });
-  } catch (error) {
+  } catch (errorCreateUser) {
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -82,19 +86,17 @@ const createUserController = async (req, res) => {
 
 const verifyUserController = async (req, res) => {
   const { token } = req.body;
-
   const validationResult = verifyUserSchema.validate({
     token,
   });
+  const { value, errorVerifyUser } = validationResult;
 
-  const { value, error } = validationResult;
-
-  if (error) {
+  if (errorVerifyUser) {
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_400_BAD_REQUEST,
       message: 'Validation Error',
-      error,
+      errorVerifyUser,
     });
   }
 
@@ -104,21 +106,32 @@ const verifyUserController = async (req, res) => {
     const user = await userService.findUserByToken({ token: value.token });
 
     if (user) {
-      await userService.verifyUser(user);
-
+      console.log("USER", user.dataValues.createdAt)
+      var expiry_date = moment(user.dataValues.createdAt, "DD-MM-YYYY").add(3, 'days');
+      let today = moment();
+      if (today > expiry_date) {
+        return httpRespStatusUtil.sendResponse({
+          res,
+          status: status.HTTP_400_BAD_REQUEST,
+          message: 'Verification Expired',
+        });
+      }
       return httpRespStatusUtil.sendResponse({
         res,
         status: status.HTTP_200_OK,
         message: 'User verified',
       });
-    } else {
-      return httpRespStatusUtil.sendResponse({
-        res,
-        status: status.HTTP_404_NOT_FOUND,
-        message: 'User not found',
-      });
+      await UserService.verifyUser(user);
+
+      
     }
+    return httpRespStatusUtil.sendResponse({
+      res,
+      status: status.HTTP_404_NOT_FOUND,
+      message: 'User not found',
+    });
   } catch (error) {
+    console.log("ERROR", error)
     return httpRespStatusUtil.sendResponse({
       res,
       status: status.HTTP_500_INTERNAL_SERVER_ERROR,

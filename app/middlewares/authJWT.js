@@ -19,6 +19,7 @@ const authJWT = (req, res, next) => {
 
       req.user = user;
       next();
+      return false;
     });
   } else {
     return httpRespStatusUtil.sendResponse({
@@ -27,6 +28,7 @@ const authJWT = (req, res, next) => {
       message: 'Unauthorized user',
     });
   }
+  return false;
 };
 
 module.exports = { authJWT };

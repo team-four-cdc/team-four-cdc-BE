@@ -3,12 +3,12 @@ const router = express.Router();
 const { categoryController } = require('../controllers');
 const { authJWT } = require('../middlewares/authJWT');
 
-router.get('/listing', authJWT, categoryController.getCategoryListing);
+router.get('/listing', categoryController.getCategoryListing);
 
 router.post(
-    '/create',
-    authJWT,
-    categoryController.createCategoryHandler
-  );
+  '/create',
+  authJWT,
+  categoryController.createCategoryHandler
+);
 
 module.exports = router;

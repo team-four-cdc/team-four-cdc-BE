@@ -4,15 +4,14 @@ class CategoryService {
   constructor() {
     this.categoryModel = db.Category;
   }
+
   async getListing() {
-    return await this.categoryModel.findAll();
+    return this.categoryModel.findAll();
   }
 
-  async createCategory({
-        name
-  }) {
-    return await this.categoryModel.create({
-        name
+  async createCategory({ name }) {
+    return this.categoryModel.create({
+      name,
     });
   }
 }

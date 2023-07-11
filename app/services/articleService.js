@@ -1,8 +1,11 @@
 const { Op } = require('sequelize');
+const { sequelize, Sequelize } = require('../models');
 class ArticleService {
-  constructor({ articleModel, userModel }) {
+  constructor({ articleModel, userModel, categoryModel }) {
+    this.transactionModel = transactionModel;
     this.articleModel = articleModel;
     this.userModel = userModel;
+    this.categoryModel = categoryModel;
   }
 
   async createArticle({
@@ -50,7 +53,39 @@ class ArticleService {
         };
       }
     }
-    return await this.articleModel.findAll(query);
+    return this.articleModel.findAll(query);
+  }
+
+  async getUnboughtList({ userId, limit }) {
+    const query = {
+      include: {
+        model: this.transactionModel,
+        where: {
+          user_id: {
+            [sequelize.Op.not]: userId
+          }
+        },
+        as: 'transactions',
+        required: true,
+      },
+      order: [['createdAt', 'DESC']],
+      limit: limit
+    };
+
+    if (userId) {
+      if (Array.isArray(userId)) {
+        query.where = {
+          author_id: {
+            [Op.or]: userId,
+          },
+        };
+      } else {
+        query.where = {
+          author_id: userId,
+        };
+      }
+    }
+    return this.articleModel.findAll(query);
   }
 
   async getRandomListing({ userId }) {
@@ -79,17 +114,52 @@ class ArticleService {
         };
       }
     }
-    return await this.articleModel.findAll(query);
+    return this.articleModel.findAll(query);
   }
 
-  async updateArticle({ articleId, title, body, description, price, total_clicks }) {
+  async getRandomListingByAuthorId({ authorId, limit }) {
+    const query = {
+      include: [{
+        model: this.userModel,
+        attributes: {
+          exclude: ['password', 'token', 'is_verified'],
+        },
+        as: 'author',
+      }, {
+        model: this.categoryModel,
+        as: 'category'
+      }],
+      attributes: [
+        'id',
+        'title',
+        [Sequelize.fn('CONCAT', Sequelize.fn('LEFT', Sequelize.col('body'), 50), '...'), 'body'],
+        'updatedAt'
+      ],
+      where: {
+        author_id: authorId
+      },
+      order: sequelize.random(),
+      limit: limit,
+    };
+
+    return this.articleModel.findAll(query);
+  }
+
+  async updateArticle({
+    articleId,
+    title,
+    body,
+    description,
+    price,
+    totalClicks,
+  }) {
     return this.articleModel.update(
       {
         title,
         body,
         description,
         price,
-        total_clicks
+        totalClicks,
       },
       { where: { id: articleId } }
     );
@@ -102,7 +172,21 @@ class ArticleService {
   }
 
   async getDetailArticle(articleId) {
-    return this.articleModel.findByPk(articleId);
+    return this.articleModel.findOne({
+      include: [{
+        model: this.userModel,
+        attributes: {
+          exclude: ['password', 'token', 'is_verified'],
+        },
+        as: 'author',
+      }, {
+        model: this.categoryModel,
+        as: 'category'
+      }],
+      where: {
+        id: articleId
+      }
+    });
   }
 
   async getPopularArticles(limit) {

@@ -1,6 +1,4 @@
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Auth extends Model {
     /**
@@ -13,24 +11,27 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(models.User, { foreignKey: 'user_id' });
     }
   }
-  Auth.init({
-    user_id: {
-      allowNull: false,
-      type: DataTypes.INTEGER,
-      references: { model: 'Users', key: 'id' },
+  Auth.init(
+    {
+      user_id: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+        references: { model: 'Users', key: 'id' },
+      },
+      generate_code: {
+        type: DataTypes.STRING,
+      },
+      expiry_date: {
+        type: DataTypes.DATE,
+      },
+      purpose: {
+        type: DataTypes.STRING,
+      },
     },
-    generate_code: {
-      type: DataTypes.STRING
-    },
-    expiry_date: {
-      type: DataTypes.DATE
-    },
-    purpose: {
-      type: DataTypes.STRING
-    },
-  }, {
-    sequelize,
-    modelName: 'Auth',
-  });
+    {
+      sequelize,
+      modelName: 'Auth',
+    }
+  );
   return Auth;
 };

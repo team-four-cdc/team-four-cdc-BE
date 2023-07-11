@@ -1,6 +1,16 @@
 module.exports = {
   extends: 'airbnb-base',
+  parserOptions: {
+    ecmaVersion: 2020,
+    ecmaFeatures: {
+      experimentalObjectRestSpread: true
+    }
+  },
   rules: {
+    'import/no-unresolved': [
+      2,
+      { caseSensitive: false }
+    ],
     'comma-dangle': 0,
     'import/no-dynamic-require': 0,
     'max-len': 0,

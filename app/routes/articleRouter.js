@@ -5,8 +5,11 @@ const { authJWT } = require('../middlewares/authJWT');
 const { uploadCover } = require('../middlewares/upload');
 
 router.get('/listing', articleController.getArticleListing);
+router.get('/random-listing', articleController.getRandomArticleByAuthor);
+router.get('/unbought-list', articleController.getUnboughtList);
 router.get('/dashboard', articleController.getDashboard);
 router.get('/popular-article', articleController.getPopularArticles);
+router.get('/owned-article', articleController.getListOwnedArticle);
 
 router.get('/:articleId', authJWT, articleController.getDetailArticle);
 

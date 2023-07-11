@@ -20,11 +20,7 @@ if (config.use_env_variable) {
 
 fs.readdirSync(__dirname)
   .filter(
-    (file) =>
-      file.indexOf('.') !== 0 &&
-      file !== basename &&
-      file.slice(-3) === '.js' &&
-      file.indexOf('.test.js') === -1
+    (file) => file.indexOf('.') !== 0 && file !== basename && file.slice(-3) === '.js' && file.indexOf('.test.js') === -1
   )
   .forEach((file) => {
     const model = require(path.join(__dirname, file))(
@@ -43,10 +39,13 @@ Object.keys(db).forEach((modelName) => {
 const connect = async () => {
   try {
     await sequelize.authenticate();
-    console.log('Connection has been established successfully.');
+    // eslint-disable-next-line no-console
+    console.warn('Connection has been established successfully.');
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Unable to connect to the database.');
-    console.log(error);
+    // eslint-disable-next-line no-console
+    console.warn(error);
   }
 };
 

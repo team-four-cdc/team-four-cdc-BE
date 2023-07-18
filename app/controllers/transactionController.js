@@ -51,7 +51,7 @@ const createTransactionHandler = async (req, res) => {
       data: payment,
     });
   } catch (errorCreateTransaction) {
-    if (error.name === 'SequelizeForeignKeyConstraintError') {
+    if (errorCreateTransaction?.name === 'SequelizeForeignKeyConstraintError') {
       return httpRespStatusUtil.sendResponse({
         res,
         status: status.HTTP_400_BAD_REQUEST,

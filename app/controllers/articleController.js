@@ -359,7 +359,7 @@ const getDetailArticle = async (req, res) => {
     }
 
     if (req.user.role === 'reader') {
-      const checkOwnedArticle = await transactionService.checkOwnedArticle(userId, articleId);
+      const checkOwnedArticle = await transactionService.getOwnedArticle(userId, articleId);
       if (!checkOwnedArticle) {
         article.body = `notOwned ${article.body}`.slice(0, 50) + "..."
         return httpRespStatusUtil.sendResponse({
